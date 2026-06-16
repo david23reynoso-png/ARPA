@@ -342,7 +342,7 @@ function calcular(){
   const p=perfiles[perfil];
   document.getElementById('perfilCard').innerHTML='<div class="pcard" style="background:'+p.bg+'"><div class="picon">'+p.emoji+'</div><div><div class="ptype" style="color:'+p.color+'">'+p.tipo+'</div><div class="pname">'+p.nombre+'</div><div class="pdesc">'+p.desc+'</div></div></div>';
   const pctCob=Math.max(5,Math.min(100,Math.round(capAct/capNec*100)));const brecha=Math.max(0,capNec-capAct);const barColor=pctCob>=80?'#CBA97E':pctCob>=50?'#E2A860':'#E24B4A';
-  document.getElementById('// Cálculo conciencia patrimonial: edad retiro ya capturada, vida promedio 85
+  // Cálculo conciencia patrimonial: edad retiro ya capturada, vida promedio 85
   const anosRetiro=Math.max(1,85-edadRetiro); // años de retiro hasta los 85
   const capitalTotal=montoRetiro*12*anosRetiro; // lo que necesitas sin rendimiento
   const anosParaConstruir=Math.max(1,edadRetiro-edad); // años que tienes para construirlo

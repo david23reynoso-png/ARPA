@@ -342,28 +342,118 @@ function calcular(){
   const p=perfiles[perfil];
   document.getElementById('perfilCard').innerHTML='<div class="pcard" style="background:'+p.bg+'"><div class="picon">'+p.emoji+'</div><div><div class="ptype" style="color:'+p.color+'">'+p.tipo+'</div><div class="pname">'+p.nombre+'</div><div class="pdesc">'+p.desc+'</div></div></div>';
   const pctCob=Math.max(5,Math.min(100,Math.round(capAct/capNec*100)));const brecha=Math.max(0,capNec-capAct);const barColor=pctCob>=80?'#CBA97E':pctCob>=50?'#E2A860':'#E24B4A';
-  document.getElementById('retiroBars').innerHTML='<div class="ritem"><div class="ritem-top"><span>Capital meta de retiro</span><span>'+fmt(capNec)+'</span></div><div class="rbar-bg"><div class="rbar-fill" style="width:100%;background:rgba(255,255,255,0.08)"></div></div></div><div class="ritem"><div class="ritem-top"><span>Capacidad actual estimada</span><span>'+pctCob+'%</span></div><div class="rbar-bg"><div class="rbar-fill" style="width:'+pctCob+'%;background:'+barColor+'"></div></div></div>'+(brecha>0?'<div class="brecha-note">Brecha estimada: <strong>'+fmt(brecha)+' MXN</strong> · '+anos+' años para cierre</div>':'<div class="brecha-note" style="border-left-color:#A8C4B0;color:rgba(168,196,176,0.9)">Tu trayectoria actual cubre la meta de retiro.</div>');
-  // Planes Prudential por perfil (1 principal + Hombre Clave si aplica)
-  const planPrudential={
-    deduccion:{i:'🛡️',n:'Hombre Clave · Bienestar Prudential',d:'El seguro de Hombre Clave protege a tu empresa ante la pérdida de un elemento crítico. Prima 100% deducible como gasto de negocio. Ideal para empresarios que necesitan deducción máxima y protección corporativa.'},
-    proteccion:{i:'💙',n:'Vida Prudential',d:'Plan de vida con suma asegurada alta para proteger a tu familia en caso de fallecimiento o invalidez. 10 años de pago, cobertura de por vida. El plan ideal cuando tienes dependientes o tu familia depende de tus ingresos.'},
-    rendimiento:{i:'📈',n:'Retiro Vida Prudential',d:'Plan de ahorro + vida diseñado para generar rentas mensuales garantizadas al retiro. 15 años de pago, con valor en efectivo acumulado y rendimientos competitivos. Perfecto si tu prioridad es construir patrimonio a largo plazo.'}
-  };
-  const serviciosAdicionales={
-    deduccion:[{i:'📊',n:'Optimización de flujos fiscales',d:'Redistribución inteligente de ingresos vía dividendos, honorarios y arrendamiento.'},{i:'📋',n:'Auditoría fiscal preventiva',d:'Revisión de CFDI, declaraciones y cumplimiento para blindar contingencias SAT.'},{i:'🏛️',n:'Estructuración jurídica',d:'Diseño de figura ideal: S.A.S., S.C., Holding o Fideicomiso para optimizar tu carga tributaria.'}],
-    proteccion:[{i:'📜',n:'Testamento y plan sucesorio',d:'Estructuración completa para proteger y transmitir tu patrimonio con certeza jurídica.'},{i:'🏠',n:'Fideicomiso patrimonial',d:'Mecanismo para aislar y proteger bienes de riesgos legales, laborales o comerciales.'},{i:'⚖️',n:'Separación patrimonial empresa-persona',d:'Blindaje legal que separa tu patrimonio personal de la exposición empresarial.'}],
-    rendimiento:[{i:'🏗️',n:'Estrategia de bienes raíces',d:'Plan de adquisición inmobiliaria con análisis de ROI, plusvalía y eficiencia fiscal.'},{i:'💡',n:'Ingresos pasivos diversificados',d:'Diseño de múltiples fuentes: dividendos, renta, negocios franquiciados.'},{i:'🌍',n:'Gestión patrimonial integral',d:'Consolidación de todos tus activos bajo una estrategia unificada de crecimiento.'}]
-  };
-  const planPrincipal=planPrudential[perfil]||planPrudential.proteccion;
-  const tieneEmpresa=(regimen==='moral'||regimen==='mixto');
-  const hombreClave={i:'🏢',n:'Hombre Clave · Bienestar Prudential',d:'Al tener empresa, te recomendamos adicionalmente este seguro. Prima 100% deducible. Protege a tu negocio ante la pérdida de un elemento clave.'};
+  document.getElementById('// Cálculo conciencia patrimonial: edad retiro ya capturada, vida promedio 85
+  const anosRetiro=Math.max(1,85-edadRetiro); // años de retiro hasta los 85
+  const capitalTotal=montoRetiro*12*anosRetiro; // lo que necesitas sin rendimiento
+  const anosParaConstruir=Math.max(1,edadRetiro-edad); // años que tienes para construirlo
+  const ahorroSinPlan=capitalTotal/Math.max(1,anosParaConstruir*12); // ahorro mensual sin rendimiento (el número que duele)
+  const nombreCliente=document.getElementById('nombre')?.value||'tú';
+  const primerNombre=nombreCliente.trim().split(' ')[0];
+
+  retiroBars').innerHTML=`
+  <div class="ritem"><div class="ritem-top"><span>Capital meta de retiro</span><span>${fmt(capNec)}</span></div>
+  <div class="rbar-bg"><div class="rbar-fill" style="width:100%;background:rgba(255,255,255,0.08)"></div></div></div>
+  <div class="ritem"><div class="ritem-top"><span>Capacidad actual estimada</span><span>${pctCob}%</span></div>
+  <div class="rbar-bg"><div class="rbar-fill" style="width:${pctCob}%;background:${barColor}"></div></div></div>
+  ${brecha>0?`<div class="brecha-note">Brecha estimada: <strong>${fmt(brecha)} MXN</strong> · ${anos} años para cierre</div>`:`<div class="brecha-note" style="border-left-color:#A8C4B0;color:rgba(168,196,176,0.9)">Tu trayectoria actual cubre la meta de retiro.</div>`}
   
-  let planHTML='<div style="margin-bottom:8px;font-size:11px;letter-spacing:2px;color:var(--champagne-light);font-weight:600;text-transform:uppercase">Plan Prudential Recomendado</div>';
-  planHTML+='<div class="proditem" style="border:1px solid rgba(203,169,126,0.35);border-radius:12px;padding:16px;margin-bottom:12px;background:rgba(203,169,126,0.06)"><div class="prodico">'+planPrincipal.i+'</div><div><div class="prodname">'+planPrincipal.n+'</div><div class="proddesc">'+planPrincipal.d+'</div></div></div>';
-  if(tieneEmpresa&&perfil!=='deduccion'){
-    planHTML+='<div class="proditem" style="border:1px solid rgba(203,169,126,0.2);border-radius:12px;padding:16px;margin-bottom:20px"><div class="prodico">'+hombreClave.i+'</div><div><div class="prodname">'+hombreClave.n+'</div><div class="proddesc">'+hombreClave.d+'</div></div></div>';
+  <div style="margin-top:24px;background:linear-gradient(135deg,rgba(203,169,126,0.08),rgba(11,15,20,0.4));border:1px solid rgba(203,169,126,0.25);border-radius:14px;padding:20px">
+    <div style="font-size:11px;letter-spacing:2px;color:#CBA97E;font-weight:700;text-transform:uppercase;margin-bottom:14px">💭 ¿Tienes ese dinero listo hoy?</div>
+    <div style="font-size:13px;color:rgba(255,255,255,0.85);line-height:1.8;margin-bottom:16px">
+      ${primerNombre}, si quieres retirarte a los <strong style="color:#CBA97E">${edadRetiro} años</strong> y vivir hasta los <strong style="color:#CBA97E">85</strong>, necesitas 
+      <strong style="color:#CBA97E">${anosRetiro} años de ingresos</strong> garantizados.<br><br>
+      Con el retiro mensual que deseas, el capital total que necesitas acumular es de:<br>
+      <span style="font-size:22px;font-weight:800;color:#CBA97E;display:block;margin:8px 0">${fmt(capitalTotal)} MXN</span>
+      <span style="font-size:11px;color:rgba(255,255,255,0.4)">(${fmt(montoRetiro)}/mes × 12 meses × ${anosRetiro} años)</span>
+    </div>
+    <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:14px;margin-bottom:12px">
+      <div style="font-size:11px;color:rgba(239,68,68,0.8);font-weight:600;margin-bottom:4px;letter-spacing:1px">SIN UN PLAN — AHORRANDO SOLO</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.7)">Tendrías que ahorrar <strong style="color:#ef4444;font-size:15px">${fmt(ahorroSinPlan)}/mes</strong> durante ${anosParaConstruir} años, sin fallar ni un mes, sin rendimiento.</div>
+    </div>
+    <div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:14px">
+      <div style="font-size:11px;color:rgba(34,197,94,0.8);font-weight:600;margin-bottom:4px;letter-spacing:1px">CON UN PLAN PRUDENTIAL — EL INTERÉS COMPUESTO TRABAJA POR TI</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.7)">Tu cotización personalizada te mostrará el monto exacto a destinar mensualmente para alcanzar este objetivo — <strong style="color:#22c55e">mucho menor de lo que imaginas</strong>.</div>
+    </div>
+    <div style="margin-top:14px;font-size:11px;color:rgba(255,255,255,0.35);font-style:italic;text-align:center">Tu plan personalizado está en preparación. Lo recibirás en menos de 30 minutos.</div>
+  </div>\`;
+  // ── LÓGICA DE PLAN PRUDENTIAL ──
+  // seguro actual
+  const tieneSeguro=(seguro==='si');
+  const tieneHijos=(dependientes==='si'||dependientes==='1'||(typeof dependientes==='string'&&dependientes!=='no'&&dependientes!=='0'));
+  const tieneEmpresa=(regimen==='moral'||regimen==='mixto'||regimen==='general');
+  
+  // Lógica: 1 plan principal
+  // Hombre Clave → empresa con necesidad de deducción (perfil deduccion) 
+  // Vida Prudential → protección (sin seguro, tiene hijos/dependientes, o perfil proteccion)
+  // Retiro Vida Prudential → rendimiento/retiro (perfil rendimiento, tiene seguro suficiente)
+  let planRec;
+  if(perfil==='deduccion'&&tieneEmpresa){
+    planRec={
+      i:'🏢',
+      n:'Hombre Clave · Bienestar Prudential',
+      badge:'Deducción 100%',
+      d:'Diseñado para empresarios. La prima es 100% deducible como gasto de negocio. Protege a tu empresa ante la pérdida de un elemento estratégico clave, y a ti ante una invalidez o fallecimiento. Pago a 10 años, cobertura vitalicia.',
+      highlight:'Prima deducible · Protección corporativa + personal'
+    };
+  } else if(perfil==='rendimiento'&&tieneSeguro){
+    planRec={
+      i:'📈',
+      n:'Retiro Vida Prudential',
+      badge:'Más rendimiento',
+      d:'Tu plan de ahorro inteligente. Pagas 15 años y al retiro recibes rentas mensuales garantizadas de por vida. Además incluye cobertura de vida durante todo el plazo. Ideal para quienes ya tienen seguro y quieren hacer crecer su capital.',
+      highlight:'Rentas mensuales garantizadas · 15 años de pago · Valor acumulado creciente'
+    };
+  } else {
+    planRec={
+      i:'💙',
+      n:'Vida Prudential',
+      badge:'Más protección',
+      d:'El plan de vida más completo para proteger a tu familia. Suma asegurada alta desde el día uno, con cobertura de fallecimiento, invalidez y enfermedades graves. Solo pagas 10 años y la cobertura es vitalicia.',
+      highlight:'Suma asegurada alta · Solo 10 años de pago · Cobertura vitalicia'
+    };
   }
-  planHTML+='<div style="margin-bottom:8px;margin-top:4px;font-size:11px;letter-spacing:2px;color:rgba(255,255,255,0.4);font-weight:600;text-transform:uppercase">Servicios Adicionales Recomendados</div>';
+
+  // Si tiene empresa Y el plan principal no es Hombre Clave → mostrar Hombre Clave como adicional
+  const mostrarHC=(tieneEmpresa&&planRec.n!=='Hombre Clave · Bienestar Prudential');
+  
+  const serviciosAdicionales={
+    deduccion:[{i:'📊',n:'Optimización de flujos fiscales',d:'Redistribución inteligente de ingresos vía dividendos, honorarios y arrendamiento.'},{i:'📋',n:'Auditoría fiscal preventiva',d:'Revisión de CFDI, declaraciones y cumplimiento para blindar contingencias SAT.'}],
+    proteccion:[{i:'📜',n:'Testamento y plan sucesorio',d:'Estructuración completa para proteger y transmitir tu patrimonio con certeza jurídica.'},{i:'🏠',n:'Fideicomiso patrimonial',d:'Mecanismo para aislar y proteger bienes de riesgos legales, laborales o comerciales.'}],
+    rendimiento:[{i:'🏗️',n:'Estrategia de bienes raíces',d:'Plan de adquisición con análisis de ROI, plusvalía y eficiencia fiscal.'},{i:'💡',n:'Ingresos pasivos diversificados',d:'Diseño de múltiples fuentes: dividendos, renta, negocios franquiciados.'}]
+  };
+
+  let planHTML=`
+  <div style="margin-bottom:10px;font-size:11px;letter-spacing:2px;color:#CBA97E;font-weight:700;text-transform:uppercase">⭐ Plan Prudential Recomendado para Ti</div>
+  <div style="border:1.5px solid rgba(203,169,126,0.5);border-radius:14px;padding:20px;margin-bottom:8px;background:linear-gradient(135deg,rgba(203,169,126,0.1),rgba(203,169,126,0.03))">
+    <div style="display:flex;align-items:flex-start;gap:14px">
+      <div style="font-size:28px">${planRec.i}</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap">
+          <div style="font-size:15px;font-weight:700;color:#fff">${planRec.n}</div>
+          <span style="background:#CBA97E;color:#0B0F14;font-size:9px;font-weight:800;padding:3px 8px;border-radius:20px;letter-spacing:1px">${planRec.badge}</span>
+        </div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.6;margin-bottom:10px">${planRec.d}</div>
+        <div style="font-size:10px;color:#CBA97E;font-weight:600;letter-spacing:0.5px">✦ ${planRec.highlight}</div>
+      </div>
+    </div>
+  </div>`;
+  
+  if(mostrarHC){
+    planHTML+=`<div style="border:1px solid rgba(203,169,126,0.25);border-radius:12px;padding:16px;margin-bottom:16px;background:rgba(255,255,255,0.02)">
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div style="font-size:22px">🏢</div>
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <div style="font-size:13px;font-weight:600;color:#fff">Hombre Clave · Bienestar Prudential</div>
+            <span style="background:rgba(203,169,126,0.15);color:#CBA97E;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px">También recomendado</span>
+          </div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.6);line-height:1.5">Al tener empresa, este seguro complementa tu plan. Prima 100% deducible. Protege tu negocio ante la ausencia de un elemento estratégico.</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  planHTML+=`<div style="margin-top:20px;margin-bottom:10px;font-size:11px;letter-spacing:2px;color:rgba(255,255,255,0.35);font-weight:600;text-transform:uppercase">Servicios Adicionales del Bufete</div>`;
   planHTML+=(serviciosAdicionales[perfil]||serviciosAdicionales.proteccion).map(pr=>'<div class="proditem"><div class="prodico">'+pr.i+'</div><div><div class="prodname">'+pr.n+'</div><div class="proddesc">'+pr.d+'</div></div></div>').join('');
   document.getElementById('prodList').innerHTML=planHTML;
 }

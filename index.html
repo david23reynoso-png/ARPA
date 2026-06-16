@@ -101,6 +101,7 @@ body{font-family:'Montserrat',sans-serif;background:#f5f5f0;display:flex;justify
 .foot-r{font-size:9px;color:rgba(255,255,255,.2)}
 @media(max-width:500px){.fg2{grid-template-columns:1fr}}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 <div class="aw" id="arpaApp">
@@ -166,8 +167,8 @@ body{font-family:'Montserrat',sans-serif;background:#f5f5f0;display:flex;justify
           <select class="fi" id="regimen">
             <option value="">Seleccionar</option>
             <option value="asalariado">Asalariado</option>
-            <option value="honorarios">Honorarios / RIF</option>
-            <option value="resico">RESICO</option>
+            <option value="resico">PF RESICO</option>
+            <option value="general">PF Régimen General</option>
             <option value="moral">Persona Moral</option>
             <option value="mixto">Mixto</option>
           </select>
@@ -226,8 +227,7 @@ body{font-family:'Montserrat',sans-serif;background:#f5f5f0;display:flex;justify
           <label class="ro"><input type="radio" name="testamento" value="no"><span>No tengo</span></label>
         </div></div>
         <div><div class="fl">Seguro de vida</div><div class="rg">
-          <label class="ro"><input type="radio" name="seguro" value="si_suficiente"><span>Sí, suficiente</span></label>
-          <label class="ro"><input type="radio" name="seguro" value="si_insuficiente"><span>Sí, insuficiente</span></label>
+          <label class="ro"><input type="radio" name="seguro" value="si"><span>Sí tengo</span></label>
           <label class="ro"><input type="radio" name="seguro" value="no"><span>No tengo</span></label>
         </div></div>
         <div><div class="fl">Perfil de inversión</div><div class="rg">
@@ -285,7 +285,7 @@ body{font-family:'Montserrat',sans-serif;background:#f5f5f0;display:flex;justify
       <div class="cta-h">Tu patrimonio merece un arquitecto</div>
       <div class="cta-s">Agenda una sesión de diagnóstico con David Reynoso — sin costo, sin compromiso — y construye la estrategia que tu legado merece.</div>
       <a href="https://calendly.com/david23reynoso" target="_blank" class="btn-cal">Agendar consulta gratuita</a>
-      <button class="btn-pdf" onclick="alert('PDF en desarrollo')">↓ Descargar Diagnóstico PDF</button>
+      <button class="btn-pdf" onclick="generarPDF()">↓ Descargar Diagnóstico PDF</button>
     </div>
     <div class="foot">
       <div class="foot-l">Yerro Bufete Fiscal · Guadalajara</div>
@@ -318,7 +318,7 @@ function calcular(){
   if(ahorro>=25)sL=25;else if(ahorro>=15)sL=20;else if(ahorro>=10)sL=15;else if(ahorro>=5)sL=8;else sL=3;
   if(deudas==='ninguna')sL=Math.min(25,sL+3);if(deudas==='multiple')sL=Math.max(0,sL-5);if(inmuebles!=='no')sL=Math.min(25,sL+2);
   if(testamento==='si')sP+=13;else if(testamento==='proceso')sP+=6;
-  if(seguro==='si_suficiente')sP+=12;else if(seguro==='si_insuficiente')sP+=5;sP=Math.min(25,sP);
+  if(seguro==='si')sP+=12;sP=Math.min(25,sP);
   const anos=Math.max(1,edadRetiro-edad);const capNec=montoRetiro*12*20;const capAct=ingresos*(ahorro/100)*12*anos*0.82;
   sR=Math.max(3,Math.min(25,Math.round(Math.min(1,capAct/capNec)*25)));
   if(regimen==='moral'||regimen==='mixto')sF+=14;else if(regimen==='resico'||regimen==='honorarios')sF+=10;else sF+=5;
@@ -343,8 +343,95 @@ function calcular(){
   document.getElementById('perfilCard').innerHTML='<div class="pcard" style="background:'+p.bg+'"><div class="picon">'+p.emoji+'</div><div><div class="ptype" style="color:'+p.color+'">'+p.tipo+'</div><div class="pname">'+p.nombre+'</div><div class="pdesc">'+p.desc+'</div></div></div>';
   const pctCob=Math.max(5,Math.min(100,Math.round(capAct/capNec*100)));const brecha=Math.max(0,capNec-capAct);const barColor=pctCob>=80?'#CBA97E':pctCob>=50?'#E2A860':'#E24B4A';
   document.getElementById('retiroBars').innerHTML='<div class="ritem"><div class="ritem-top"><span>Capital meta de retiro</span><span>'+fmt(capNec)+'</span></div><div class="rbar-bg"><div class="rbar-fill" style="width:100%;background:rgba(255,255,255,0.08)"></div></div></div><div class="ritem"><div class="ritem-top"><span>Capacidad actual estimada</span><span>'+pctCob+'%</span></div><div class="rbar-bg"><div class="rbar-fill" style="width:'+pctCob+'%;background:'+barColor+'"></div></div></div>'+(brecha>0?'<div class="brecha-note">Brecha estimada: <strong>'+fmt(brecha)+' MXN</strong> · '+anos+' años para cierre</div>':'<div class="brecha-note" style="border-left-color:#A8C4B0;color:rgba(168,196,176,0.9)">Tu trayectoria actual cubre la meta de retiro.</div>');
-  const prods={deduccion:[{i:'🏛️',n:'Estructuración jurídica óptima',d:'Diseño de figura ideal: S.A.S., S.C., Holding o Fideicomiso para optimizar tu carga tributaria.'},{i:'📊',n:'Optimización de flujos fiscales',d:'Redistribución inteligente de ingresos vía dividendos, honorarios y arrendamiento.'},{i:'🔄',n:'Plan de deducciones autorizadas',d:'Maximización de gastos deducibles: médicos, educación, seguros, donativos e hipoteca.'},{i:'📋',n:'Auditoría fiscal preventiva',d:'Revisión de CFDI, declaraciones y cumplimiento para blindar contingencias SAT.'}],proteccion:[{i:'📜',n:'Testamento y plan sucesorio',d:'Estructuración completa para proteger y transmitir tu patrimonio con certeza jurídica.'},{i:'🏠',n:'Fideicomiso patrimonial',d:'Mecanismo para aislar y proteger bienes de riesgos legales, laborales o comerciales.'},{i:'🛡️',n:'Diagnóstico y cobertura de vida',d:'Análisis de suma asegurada necesaria y contratación de cobertura suficiente.'},{i:'⚖️',n:'Separación patrimonial empresa-persona',d:'Blindaje legal que separa tu patrimonio personal de la exposición empresarial.'}],rendimiento:[{i:'📈',n:'Portafolio de inversión estructurado',d:'Asignación de activos en CETES, fondos, acciones y FIBRAs según perfil de riesgo.'},{i:'🏗️',n:'Estrategia de bienes raíces',d:'Plan de adquisición inmobiliaria con análisis de ROI, plusvalía y eficiencia fiscal.'},{i:'💡',n:'Ingresos pasivos diversificados',d:'Diseño de múltiples fuentes: dividendos, renta, negocios franquiciados.'},{i:'🌍',n:'Gestión patrimonial integral',d:'Consolidación de todos tus activos bajo una estrategia unificada de crecimiento.'}]};
-  document.getElementById('prodList').innerHTML=prods[perfil].map(pr=>'<div class="proditem"><div class="prodico">'+pr.i+'</div><div><div class="prodname">'+pr.n+'</div><div class="proddesc">'+pr.d+'</div></div></div>').join('');
+  // Planes Prudential por perfil (1 principal + Hombre Clave si aplica)
+  const planPrudential={
+    deduccion:{i:'🛡️',n:'Hombre Clave · Bienestar Prudential',d:'El seguro de Hombre Clave protege a tu empresa ante la pérdida de un elemento crítico. Prima 100% deducible como gasto de negocio. Ideal para empresarios que necesitan deducción máxima y protección corporativa.'},
+    proteccion:{i:'💙',n:'Vida Prudential',d:'Plan de vida con suma asegurada alta para proteger a tu familia en caso de fallecimiento o invalidez. 10 años de pago, cobertura de por vida. El plan ideal cuando tienes dependientes o tu familia depende de tus ingresos.'},
+    rendimiento:{i:'📈',n:'Retiro Vida Prudential',d:'Plan de ahorro + vida diseñado para generar rentas mensuales garantizadas al retiro. 15 años de pago, con valor en efectivo acumulado y rendimientos competitivos. Perfecto si tu prioridad es construir patrimonio a largo plazo.'}
+  };
+  const serviciosAdicionales={
+    deduccion:[{i:'📊',n:'Optimización de flujos fiscales',d:'Redistribución inteligente de ingresos vía dividendos, honorarios y arrendamiento.'},{i:'📋',n:'Auditoría fiscal preventiva',d:'Revisión de CFDI, declaraciones y cumplimiento para blindar contingencias SAT.'},{i:'🏛️',n:'Estructuración jurídica',d:'Diseño de figura ideal: S.A.S., S.C., Holding o Fideicomiso para optimizar tu carga tributaria.'}],
+    proteccion:[{i:'📜',n:'Testamento y plan sucesorio',d:'Estructuración completa para proteger y transmitir tu patrimonio con certeza jurídica.'},{i:'🏠',n:'Fideicomiso patrimonial',d:'Mecanismo para aislar y proteger bienes de riesgos legales, laborales o comerciales.'},{i:'⚖️',n:'Separación patrimonial empresa-persona',d:'Blindaje legal que separa tu patrimonio personal de la exposición empresarial.'}],
+    rendimiento:[{i:'🏗️',n:'Estrategia de bienes raíces',d:'Plan de adquisición inmobiliaria con análisis de ROI, plusvalía y eficiencia fiscal.'},{i:'💡',n:'Ingresos pasivos diversificados',d:'Diseño de múltiples fuentes: dividendos, renta, negocios franquiciados.'},{i:'🌍',n:'Gestión patrimonial integral',d:'Consolidación de todos tus activos bajo una estrategia unificada de crecimiento.'}]
+  };
+  const planPrincipal=planPrudential[perfil]||planPrudential.proteccion;
+  const tieneEmpresa=(regimen==='moral'||regimen==='mixto');
+  const hombreClave={i:'🏢',n:'Hombre Clave · Bienestar Prudential',d:'Al tener empresa, te recomendamos adicionalmente este seguro. Prima 100% deducible. Protege a tu negocio ante la pérdida de un elemento clave.'};
+  
+  let planHTML='<div style="margin-bottom:8px;font-size:11px;letter-spacing:2px;color:var(--champagne-light);font-weight:600;text-transform:uppercase">Plan Prudential Recomendado</div>';
+  planHTML+='<div class="proditem" style="border:1px solid rgba(203,169,126,0.35);border-radius:12px;padding:16px;margin-bottom:12px;background:rgba(203,169,126,0.06)"><div class="prodico">'+planPrincipal.i+'</div><div><div class="prodname">'+planPrincipal.n+'</div><div class="proddesc">'+planPrincipal.d+'</div></div></div>';
+  if(tieneEmpresa&&perfil!=='deduccion'){
+    planHTML+='<div class="proditem" style="border:1px solid rgba(203,169,126,0.2);border-radius:12px;padding:16px;margin-bottom:20px"><div class="prodico">'+hombreClave.i+'</div><div><div class="prodname">'+hombreClave.n+'</div><div class="proddesc">'+hombreClave.d+'</div></div></div>';
+  }
+  planHTML+='<div style="margin-bottom:8px;margin-top:4px;font-size:11px;letter-spacing:2px;color:rgba(255,255,255,0.4);font-weight:600;text-transform:uppercase">Servicios Adicionales Recomendados</div>';
+  planHTML+=(serviciosAdicionales[perfil]||serviciosAdicionales.proteccion).map(pr=>'<div class="proditem"><div class="prodico">'+pr.i+'</div><div><div class="prodname">'+pr.n+'</div><div class="proddesc">'+pr.d+'</div></div></div>').join('');
+  document.getElementById('prodList').innerHTML=planHTML;
+}
+function generarPDF(){
+  try{
+    const {jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    const W=210,margin=20;
+    // Fondo
+    doc.setFillColor(11,15,20);doc.rect(0,0,W,297,'F');
+    // Header
+    doc.setFillColor(13,27,36);doc.rect(0,0,W,40,'F');
+    doc.setTextColor(203,169,126);doc.setFontSize(22);doc.setFont('helvetica','bold');
+    doc.text('ARPA',margin,18);
+    doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(180,160,120);
+    doc.text('ARQUITECTURA PATRIMONIAL INTELIGENTE',margin,24);
+    doc.setTextColor(120,120,120);doc.text('YERRO BUFETE FISCAL · GUADALAJARA',margin,30);
+    doc.text('Confidencial · Solo para uso del cliente',margin,36);
+    // Nombre cliente
+    const nombre=document.getElementById('nombre')?.value||'Cliente';
+    const edad=document.getElementById('edad')?.value||'—';
+    doc.setTextColor(255,255,255);doc.setFontSize(14);doc.setFont('helvetica','bold');
+    doc.text('DIAGNÓSTICO PATRIMONIAL ARPA',margin,54);
+    doc.setFontSize(11);doc.setFont('helvetica','normal');doc.setTextColor(200,200,200);
+    doc.text(nombre+' · '+edad+' años',margin,62);
+    doc.text('Fecha: '+new Date().toLocaleDateString('es-MX'),margin,68);
+    // Índice
+    const score=parseInt(document.getElementById('gaugeNum')?.textContent||'0');
+    doc.setFillColor(13,27,36);doc.roundedRect(margin,76,W-margin*2,28,4,4,'F');
+    doc.setTextColor(203,169,126);doc.setFontSize(28);doc.setFont('helvetica','bold');
+    doc.text(String(score),margin+8,97);
+    doc.setFontSize(10);doc.setFont('helvetica','normal');doc.setTextColor(180,160,120);
+    doc.text('/100 · Índice Patrimonial ARPA',margin+22,97);
+    // Perfil
+    const perfilEl=document.querySelector('.perfil-nombre');
+    const perfilText=perfilEl?perfilEl.textContent:'—';
+    doc.setTextColor(255,255,255);doc.setFontSize(12);doc.setFont('helvetica','bold');
+    doc.text('Perfil: '+perfilText,margin,116);
+    // Análisis retiro
+    const capEl=document.querySelector('[data-cap]');
+    doc.setTextColor(200,200,200);doc.setFontSize(10);doc.setFont('helvetica','normal');
+    const retiroLines=document.querySelector('.retiro-analisis');
+    if(retiroLines){
+      const lines=doc.splitTextToSize(retiroLines.innerText.replace(/\s+/g,' '),W-margin*2);
+      doc.text(lines,margin,126);
+    }
+    // Plan recomendado
+    doc.setTextColor(203,169,126);doc.setFontSize(11);doc.setFont('helvetica','bold');
+    doc.text('PLAN PRUDENTIAL RECOMENDADO',margin,160);
+    const planEl=document.querySelector('.proditem .prodname');
+    if(planEl){
+      doc.setTextColor(255,255,255);doc.setFontSize(10);doc.setFont('helvetica','normal');
+      doc.text(planEl.textContent,margin,168);
+      const descEl=planEl.parentElement?.querySelector('.proddesc');
+      if(descEl){
+        const dlines=doc.splitTextToSize(descEl.textContent,W-margin*2);
+        doc.text(dlines,margin,175);
+      }
+    }
+    // CTA
+    doc.setFillColor(203,169,126);doc.roundedRect(margin,240,W-margin*2,18,4,4,'F');
+    doc.setTextColor(11,15,20);doc.setFontSize(11);doc.setFont('helvetica','bold');
+    doc.text('Agenda tu sesión gratuita: calendly.com/david23reynoso',W/2,251,{align:'center'});
+    // Footer
+    doc.setTextColor(80,80,80);doc.setFontSize(8);
+    doc.text('YERRO BUFETE FISCAL · David Reynoso CPC & Lic. Fiscal · Guadalajara, Jalisco',W/2,285,{align:'center'});
+    doc.save('Diagnostico-ARPA-'+nombre.replace(/\s+/g,'-')+'.pdf');
+  }catch(e){alert('Error generando PDF: '+e.message);}
 }
 function animateGauge(score){const total=245;const el=document.getElementById('gaugeFill');const num=document.getElementById('gaugeNum');let c=0;const iv=setInterval(()=>{c+=2;if(c>=score){c=score;clearInterval(iv);}num.textContent=c;const o=total-(c/100)*total;el.setAttribute('stroke-dashoffset',o);el.setAttribute('stroke',c>=70?'#CBA97E':c>=45?'#E2A860':'#E24B4A');},16);}
 </script>

@@ -422,39 +422,40 @@ function calcular(){
     rendimiento:[{i:'🏗️',n:'Estrategia de bienes raíces',d:'Plan de adquisición con análisis de ROI, plusvalía y eficiencia fiscal.'},{i:'💡',n:'Ingresos pasivos diversificados',d:'Diseño de múltiples fuentes: dividendos, renta, negocios franquiciados.'}]
   };
 
-  let planHTML=`
-  <div style="margin-bottom:10px;font-size:11px;letter-spacing:2px;color:#CBA97E;font-weight:700;text-transform:uppercase">⭐ Plan Prudential Recomendado para Ti</div>
-  <div style="border:1.5px solid rgba(203,169,126,0.5);border-radius:14px;padding:20px;margin-bottom:8px;background:linear-gradient(135deg,rgba(203,169,126,0.1),rgba(203,169,126,0.03))">
-    <div style="display:flex;align-items:flex-start;gap:14px">
-      <div style="font-size:28px">${planRec.i}</div>
-      <div style="flex:1">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap">
-          <div style="font-size:15px;font-weight:700;color:#fff">${planRec.n}</div>
-          <span style="background:#CBA97E;color:#0B0F14;font-size:9px;font-weight:800;padding:3px 8px;border-radius:20px;letter-spacing:1px">${planRec.badge}</span>
-        </div>
-        <div style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.6;margin-bottom:10px">${planRec.d}</div>
-        <div style="font-size:10px;color:#CBA97E;font-weight:600;letter-spacing:0.5px">✦ ${planRec.highlight}</div>
-      </div>
-    </div>
-  </div>`;
-  
+  // Construir HTML del plan recomendado
+  const planHicon = planRec.i;
+  const planHname = planRec.n;
+  const planHbadge = planRec.badge;
+  const planHd = planRec.d;
+  const planHhl = planRec.highlight;
+
+  let planHTML = '<div style="margin-bottom:10px;font-size:11px;letter-spacing:2px;color:#CBA97E;font-weight:700;text-transform:uppercase">⭐ Plan Prudential Recomendado para Ti</div>';
+  planHTML += '<div style="border:1.5px solid rgba(203,169,126,0.5);border-radius:14px;padding:20px;margin-bottom:8px;background:linear-gradient(135deg,rgba(203,169,126,0.1),rgba(203,169,126,0.03))">';
+  planHTML += '<div style="display:flex;align-items:flex-start;gap:14px">';
+  planHTML += '<div style="font-size:28px">'+planHicon+'</div>';
+  planHTML += '<div style="flex:1">';
+  planHTML += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap">';
+  planHTML += '<div style="font-size:15px;font-weight:700;color:#fff">'+planHname+'</div>';
+  planHTML += '<span style="background:#CBA97E;color:#0B0F14;font-size:9px;font-weight:800;padding:3px 8px;border-radius:20px;letter-spacing:1px">'+planHbadge+'</span>';
+  planHTML += '</div>';
+  planHTML += '<div style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.6;margin-bottom:10px">'+planHd+'</div>';
+  planHTML += '<div style="font-size:10px;color:#CBA97E;font-weight:600;letter-spacing:0.5px">✦ '+planHhl+'</div>';
+  planHTML += '</div></div></div>';
+
   if(mostrarHC){
-    planHTML+=`<div style="border:1px solid rgba(203,169,126,0.25);border-radius:12px;padding:16px;margin-bottom:16px;background:rgba(255,255,255,0.02)">
-      <div style="display:flex;align-items:flex-start;gap:12px">
-        <div style="font-size:22px">🏢</div>
-        <div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-            <div style="font-size:13px;font-weight:600;color:#fff">Hombre Clave · Bienestar Prudential</div>
-            <span style="background:rgba(203,169,126,0.15);color:#CBA97E;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px">También recomendado</span>
-          </div>
-          <div style="font-size:12px;color:rgba(255,255,255,0.6);line-height:1.5">Al tener empresa, este seguro complementa tu plan. Prima 100% deducible. Protege tu negocio ante la ausencia de un elemento estratégico.</div>
-        </div>
-      </div>
-    </div>`;
+    planHTML += '<div style="border:1px solid rgba(203,169,126,0.25);border-radius:12px;padding:16px;margin-bottom:16px;background:rgba(255,255,255,0.02)">';
+    planHTML += '<div style="display:flex;align-items:flex-start;gap:12px">';
+    planHTML += '<div style="font-size:22px">🏢</div>';
+    planHTML += '<div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">';
+    planHTML += '<div style="font-size:13px;font-weight:600;color:#fff">Hombre Clave · Bienestar Prudential</div>';
+    planHTML += '<span style="background:rgba(203,169,126,0.15);color:#CBA97E;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px">También recomendado</span>';
+    planHTML += '</div>';
+    planHTML += '<div style="font-size:12px;color:rgba(255,255,255,0.6);line-height:1.5">Al tener empresa, este seguro complementa tu plan. Prima 100% deducible.</div>';
+    planHTML += '</div></div></div>';
   }
 
-  planHTML+=`<div style="margin-top:20px;margin-bottom:10px;font-size:11px;letter-spacing:2px;color:rgba(255,255,255,0.35);font-weight:600;text-transform:uppercase">Servicios Adicionales del Bufete</div>`;
-  planHTML+=(serviciosAdicionales[perfil]||serviciosAdicionales.proteccion).map(pr=>'<div class="proditem"><div class="prodico">'+pr.i+'</div><div><div class="prodname">'+pr.n+'</div><div class="proddesc">'+pr.d+'</div></div></div>').join('');
+  planHTML += '<div style="margin-top:20px;margin-bottom:10px;font-size:11px;letter-spacing:2px;color:rgba(255,255,255,0.35);font-weight:600;text-transform:uppercase">Servicios Adicionales del Bufete</div>';
+  planHTML += (serviciosAdicionales[perfil]||serviciosAdicionales.proteccion).map(function(pr){return '<div class="proditem"><div class="prodico">'+pr.i+'</div><div><div class="prodname">'+pr.n+'</div><div class="proddesc">'+pr.d+'</div></div></div>';}).join('');
   document.getElementById('prodList').innerHTML=planHTML;
 }
 function generarPDF(){

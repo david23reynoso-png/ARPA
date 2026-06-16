@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARPA Admin — Panel de Corridas</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#0D1B24;--navy2:#0B0F14;--champ:#CBA97E;--border:rgba(203,169,126,0.2);--green:#22c55e;--orange:#f59e0b;--red:#ef4444;--blue:#3b82f6}
+body{font-family:"Montserrat",sans-serif;background:#0B0F14;color:#fff;min-height:100vh}
+#loginScreen{display:flex;align-items:center;justify-content:center;min-height:100vh}
+.login-box{background:#0D1B24;border:1px solid var(--border);border-radius:16px;padding:48px 40px;width:100%;max-width:380px;text-align:center}
+.login-title{font-size:22px;font-weight:700;color:var(--champ);margin-bottom:4px;letter-spacing:3px}
+.login-sub{font-size:11px;color:rgba(255,255,255,.4);margin-bottom:32px;letter-spacing:1px}
+.login-input{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:13px 16px;font-size:14px;font-family:"Montserrat",sans-serif;color:#fff;outline:none;margin-bottom:12px}
+.login-input:focus{border-color:var(--champ)}
+.login-btn{width:100%;background:var(--champ);color:#0B0F14;border:none;border-radius:8px;padding:13px;font-size:14px;font-weight:700;font-family:"Montserrat",sans-serif;cursor:pointer}
+.login-err{color:var(--red);font-size:12px;margin-top:8px;display:none}
+#adminScreen{display:none;min-height:100vh}
+.top-bar{background:#0D1B24;border-bottom:1px solid var(--border);padding:16px 32px;display:flex;align-items:center;justify-content:space-between}
+.top-logo{font-size:18px;font-weight:700;color:var(--champ);letter-spacing:3px}
+.top-sub{font-size:10px;color:rgba(255,255,255,.4);letter-spacing:2px}
+.top-right{display:flex;align-items:center;gap:16px}
+.logout-btn{background:transparent;border:1px solid var(--border);color:rgba(255,255,255,.5);border-radius:6px;padding:7px 14px;font-size:11px;font-family:"Montserrat",sans-serif;cursor:pointer}
+.main{padding:32px}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
+.stat-card{background:#0D1B24;border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center}
+.stat-num{font-size:28px;font-weight:700;color:var(--champ)}
+.stat-label{font-size:11px;color:rgba(255,255,255,.4);margin-top:4px;letter-spacing:1px}
+.section-title{font-size:13px;font-weight:600;letter-spacing:2px;color:var(--champ);text-transform:uppercase;margin-bottom:16px}
+.filters{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.filter-btn{background:rgba(255,255,255,.04);border:1px solid var(--border);color:rgba(255,255,255,.6);border-radius:20px;padding:7px 16px;font-size:12px;font-family:"Montserrat",sans-serif;cursor:pointer}
+.filter-btn.active,.filter-btn:hover{background:var(--champ);color:#0B0F14;border-color:var(--champ);font-weight:600}
+.leads-grid{display:flex;flex-direction:column;gap:12px}
+.lead-card{background:#0D1B24;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.lead-header{padding:18px 20px;display:flex;align-items:center;gap:16px;cursor:pointer}
+.lead-avatar{width:40px;height:40px;border-radius:50%;background:rgba(203,169,126,.15);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--champ);flex-shrink:0}
+.lead-info{flex:1}
+.lead-name{font-size:14px;font-weight:600;margin-bottom:2px}
+.lead-meta{font-size:11px;color:rgba(255,255,255,.4)}
+.lead-right{display:flex;align-items:center;gap:12px}
+.status-badge{padding:4px 10px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:1px}
+.s-nuevo{background:rgba(59,130,246,.15);color:#3b82f6;border:1px solid rgba(59,130,246,.3)}
+.s-corridas_subidas{background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.3)}
+.s-analisis_listo{background:rgba(34,197,94,.15);color:#22c55e;border:1px solid rgba(34,197,94,.3)}
+.s-email_enviado{background:rgba(203,169,126,.15);color:var(--champ);border:1px solid var(--border)}
+.indice-badge{font-size:13px;font-weight:700;color:var(--champ)}
+.expand-icon{color:rgba(255,255,255,.3);font-size:12px}
+.lead-detail{display:none;border-top:1px solid var(--border);padding:20px}
+.lead-card.expanded .lead-detail{display:block}
+.lead-card.expanded .expand-icon{transform:rotate(180deg)}
+.detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+.detail-item label{font-size:10px;color:rgba(255,255,255,.4);letter-spacing:1px;display:block;margin-bottom:3px}
+.detail-item span{font-size:13px}
+.corridas-title{font-size:11px;font-weight:600;letter-spacing:2px;color:rgba(255,255,255,.5);text-transform:uppercase;margin-bottom:12px}
+.corridas-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.corrida-slot{background:rgba(255,255,255,.03);border:1px dashed rgba(203,169,126,.2);border-radius:10px;padding:16px;text-align:center}
+.corrida-slot.has-file{border-style:solid;border-color:rgba(203,169,126,.4);background:rgba(203,169,126,.05)}
+.corrida-slot-title{font-size:11px;font-weight:600;color:var(--champ);margin-bottom:4px;letter-spacing:1px}
+.corrida-slot-sub{font-size:10px;color:rgba(255,255,255,.3);margin-bottom:10px}
+.upload-btn{background:rgba(203,169,126,.1);border:1px solid var(--border);color:var(--champ);border-radius:6px;padding:8px 16px;font-size:11px;font-family:"Montserrat",sans-serif;cursor:pointer;width:100%}
+.file-name{font-size:10px;color:rgba(255,255,255,.5);margin-top:6px;word-break:break-all}
+.view-pdf-btn{background:transparent;border:1px solid rgba(34,197,94,.3);color:#22c55e;border-radius:6px;padding:6px 12px;font-size:10px;font-family:"Montserrat",sans-serif;cursor:pointer;margin-top:6px;width:100%}
+.action-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.btn{border:none;border-radius:8px;padding:11px 20px;font-size:12px;font-weight:600;font-family:"Montserrat",sans-serif;cursor:pointer;letter-spacing:1px;display:flex;align-items:center;gap:8px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-primary{background:var(--champ);color:#0B0F14}
+.btn-secondary{background:rgba(255,255,255,.06);color:#fff;border:1px solid var(--border)}
+.btn-green{background:rgba(34,197,94,.15);color:#22c55e;border:1px solid rgba(34,197,94,.3)}
+.btn-red{background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.25)}
+.analisis-box{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px}
+.analisis-title{font-size:11px;font-weight:600;letter-spacing:2px;color:rgba(255,255,255,.5);text-transform:uppercase;margin-bottom:12px}
+.planes-scores{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.plan-score{background:rgba(255,255,255,.04);border-radius:8px;padding:12px;text-align:center}
+.plan-score.ganador{background:rgba(203,169,126,.1);border:1px solid rgba(203,169,126,.3)}
+.plan-score-name{font-size:10px;color:rgba(255,255,255,.5);margin-bottom:4px}
+.plan-score-num{font-size:24px;font-weight:700;color:var(--champ)}
+.winner-tag{display:inline-block;background:var(--champ);color:#0B0F14;font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;margin-top:4px}
+.analisis-text{font-size:12px;color:rgba(255,255,255,.7);line-height:1.7;white-space:pre-wrap;max-height:200px;overflow-y:auto}
+.notes-area{width:100%;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:12px;font-size:12px;font-family:"Montserrat",sans-serif;color:rgba(255,255,255,.7);resize:vertical;min-height:60px;outline:none}
+.notes-area:focus{border-color:var(--champ)}
+.spinner{display:inline-block;width:12px;height:12px;border:2px solid rgba(0,0,0,.2);border-top-color:#0B0F14;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-state{text-align:center;padding:60px;color:rgba(255,255,255,.3)}
+.toast{position:fixed;bottom:24px;right:24px;background:#0D1B24;border:1px solid var(--border);border-radius:10px;padding:14px 20px;font-size:13px;transform:translateY(80px);opacity:0;transition:all .3s;z-index:999}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{border-color:rgba(34,197,94,.4);color:#22c55e}
+.toast.error{border-color:rgba(239,68,68,.4);color:#ef4444}
+@media(max-width:768px){.stats-row{grid-template-columns:repeat(2,1fr)}.detail-grid,.corridas-grid,.planes-scores{grid-template-columns:1fr}.main{padding:16px}}
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-title">ARPA</div>
+    <div class="login-sub">PANEL ADMINISTRATIVO · YERRO</div>
+    <input class="login-input" type="password" id="pwdInput" placeholder="Contraseña de acceso" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">ACCEDER</button>
+    <div class="login-err" id="loginErr">Contraseña incorrecta</div>
+  </div>
+</div>
+
+<div id="adminScreen">
+  <div class="top-bar">
+    <div>
+      <div class="top-logo">ARPA</div>
+      <div class="top-sub">PANEL DE CORRIDAS · YERRO BUFETE FISCAL</div>
+    </div>
+    <div class="top-right">
+      <span id="lastRefresh" style="font-size:10px;color:rgba(255,255,255,.3)"></span>
+      <button class="logout-btn" onclick="location.reload()">CERRAR SESIÓN</button>
+    </div>
+  </div>
+  <div class="main">
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num" id="stTotal">—</div><div class="stat-label">TOTAL LEADS</div></div>
+      <div class="stat-card"><div class="stat-num" id="stNuevos" style="color:#3b82f6">—</div><div class="stat-label">NUEVOS</div></div>
+      <div class="stat-card"><div class="stat-num" id="stCorridas" style="color:#f59e0b">—</div><div class="stat-label">CON CORRIDAS</div></div>
+      <div class="stat-card"><div class="stat-num" id="stListos" style="color:#22c55e">—</div><div class="stat-label">ANÁLISIS LISTO</div></div>
+    </div>
+    <div class="section-title">LEADS</div>
+    <div class="filters">
+      <button class="filter-btn active" onclick="setFilter('todos',this)">Todos</button>
+      <button class="filter-btn" onclick="setFilter('nuevo',this)">Nuevos</button>
+      <button class="filter-btn" onclick="setFilter('corridas_subidas',this)">Con Corridas</button>
+      <button class="filter-btn" onclick="setFilter('analisis_listo',this)">Análisis Listo</button>
+      <button class="filter-btn" onclick="setFilter('email_enviado',this)">Email Enviado</button>
+      <button class="filter-btn" style="margin-left:auto" onclick="loadLeads()">↻ Actualizar</button>
+    </div>
+    <div id="leadsList" class="leads-grid">
+      <div class="empty-state">⏳ Cargando leads...</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = "https://aveebyqvtcazxjdqsstp.supabase.co";
+const SUPABASE_ANON_KEY = "SUPABASE_ANON_KEY_PLACEHOLDER";
+const SUPABASE_SERVICE_KEY = "SUPABASE_SERVICE_KEY_PLACEHOLDER";
+const MAKE_WEBHOOK = "https://hook.us2.make.com/1694zmk9ehdx8v33qy5vgt";
+const ADMIN_PWD = "arpa2024yerro";
+
+let currentFilter = "todos";
+let allLeads = [];
+let pendingFiles = {};
+
+function doLogin(){
+  if(document.getElementById("pwdInput").value===ADMIN_PWD){
+    document.getElementById("loginScreen").style.display="none";
+    document.getElementById("adminScreen").style.display="block";
+    loadLeads();
+  } else {
+    document.getElementById("loginErr").style.display="block";
+  }
+}
+
+async function sbFetch(path,opts={}){
+  const isWrite=["POST","PATCH","DELETE","PUT"].includes(opts.method);
+  const key=isWrite?SUPABASE_SERVICE_KEY:SUPABASE_ANON_KEY;
+  const res=await fetch(SUPABASE_URL+path,{
+    ...opts,
+    headers:{"apikey":key,"Authorization":"Bearer "+key,"Content-Type":"application/json","Prefer":"return=representation",...(opts.headers||{})}
+  });
+  if(!res.ok) throw new Error(await res.text());
+  const ct=res.headers.get("content-type")||"";
+  return ct.includes("json")?res.json():res.text();
+}
+
+async function uploadPdf(file,path){
+  const res=await fetch(`${SUPABASE_URL}/storage/v1/object/corridas/${path}`,{
+    method:"POST",
+    headers:{"apikey":SUPABASE_SERVICE_KEY,"Authorization":"Bearer "+SUPABASE_SERVICE_KEY,"Content-Type":"application/pdf","x-upsert":"true"},
+    body:file
+  });
+  if(!res.ok) throw new Error(await res.text());
+  return `${SUPABASE_URL}/storage/v1/object/corridas/${path}`;
+}
+
+async function loadLeads(){
+  try{
+    const data=await sbFetch("/rest/v1/leads?select=*&order=created_at.desc");
+    allLeads=data;
+    document.getElementById("stTotal").textContent=data.length;
+    document.getElementById("stNuevos").textContent=data.filter(l=>l.estado==="nuevo").length;
+    document.getElementById("stCorridas").textContent=data.filter(l=>l.estado==="corridas_subidas").length;
+    document.getElementById("stListos").textContent=data.filter(l=>["analisis_listo","email_enviado"].includes(l.estado)).length;
+    document.getElementById("lastRefresh").textContent="Actualizado: "+new Date().toLocaleTimeString("es-MX");
+    renderLeads(data);
+  }catch(e){showToast("Error: "+e.message,"error");}
+}
+
+function setFilter(f,btn){
+  currentFilter=f;
+  document.querySelectorAll(".filter-btn").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  renderLeads(allLeads);
+}
+
+function renderLeads(leads){
+  const filtered=currentFilter==="todos"?leads:leads.filter(l=>l.estado===currentFilter);
+  const c=document.getElementById("leadsList");
+  if(!filtered.length){c.innerHTML='<div class="empty-state">📭 Sin leads en esta categoría</div>';return;}
+  c.innerHTML=filtered.map(buildCard).join("");
+}
+
+function buildCard(l){
+  const ini=(l.nombre||"?").split(" ").map(w=>w[0]).join("").substring(0,2).toUpperCase();
+  const sm={nuevo:"NUEVO",corridas_subidas:"CORRIDAS",analisis_listo:"ANÁLISIS",email_enviado:"EMAIL OK"};
+  const fecha=l.created_at?new Date(l.created_at).toLocaleDateString("es-MX",{day:"2-digit",month:"short"}):"—";
+  
+  const tipos=[
+    {key:"corrida_vida_url",id:"vida",label:"VIDA PRUDENTIAL",sub:"10 años · Protección"},
+    {key:"corrida_retiro_url",id:"retiro",label:"RETIRO VIDA",sub:"15 años · Rendimiento"},
+    {key:"corrida_garantia_url",id:"garantia",label:"GARANTÍA",sub:"20 años · Metas"}
+  ];
+  
+  const corridasHTML=tipos.map(t=>{
+    if(l[t.key]){
+      return `<div class="corrida-slot has-file">
+        <div class="corrida-slot-title">${t.label}</div>
+        <div class="corrida-slot-sub">${t.sub}</div>
+        <div style="color:#22c55e;font-size:11px;margin:6px 0">✓ Subido</div>
+        <button class="view-pdf-btn" onclick="window.open('${l[t.key]}','_blank')">Ver PDF</button>
+        <div style="margin-top:6px"><input type="file" accept=".pdf" id="f_${l.id}_${t.id}" onchange="markFile('${l.id}','${t.id}','${t.key}',this)" style="display:none">
+        <button class="upload-btn" onclick="document.getElementById('f_${l.id}_${t.id}').click()">Reemplazar</button>
+        <div class="file-name" id="fn_${l.id}_${t.id}"></div></div>
+      </div>`;
+    }
+    return `<div class="corrida-slot" id="slot_${l.id}_${t.id}">
+      <div class="corrida-slot-title">${t.label}</div>
+      <div class="corrida-slot-sub">${t.sub}</div>
+      <input type="file" accept=".pdf" id="f_${l.id}_${t.id}" onchange="markFile('${l.id}','${t.id}','${t.key}',this)" style="display:none">
+      <button class="upload-btn" onclick="document.getElementById('f_${l.id}_${t.id}').click()">📎 Subir PDF</button>
+      <div class="file-name" id="fn_${l.id}_${t.id}"></div>
+    </div>`;
+  }).join("");
+
+  let analisisHTML="";
+  if(l.analisis_claude){
+    let sc={};try{sc=JSON.parse(l.puntuacion_planes||"{}");}catch(e){}
+    analisisHTML=`<div class="analisis-box">
+      <div class="analisis-title">📊 Análisis Claude — Plan Ganador: ${(l.plan_ganador||"").toUpperCase()}</div>
+      <div class="planes-scores">
+        ${[{k:"vida",n:"VIDA"},{k:"retiro",n:"RETIRO VIDA"},{k:"garantia",n:"GARANTÍA"}].map(p=>`
+        <div class="plan-score ${l.plan_ganador===p.k?"ganador":""}">
+          <div class="plan-score-name">${p.n}</div>
+          <div class="plan-score-num">${sc[p.k]||"—"}</div>
+          <div style="font-size:9px;color:rgba(255,255,255,.3)">/10</div>
+          ${l.plan_ganador===p.k?'<div class="winner-tag">GANADOR</div>':""}
+        </div>`).join("")}
+      </div>
+      <div class="analisis-text">${(l.analisis_claude||"").substring(0,500)}${(l.analisis_claude||"").length>500?"...":""}</div>
+    </div>`;
+  }
+
+  const tieneTodas=l.corrida_vida_url&&l.corrida_retiro_url&&l.corrida_garantia_url;
+  const puedeAnalizar=tieneTodas&&!["analisis_listo","email_enviado"].includes(l.estado);
+  const puedeEmail=l.estado==="analisis_listo";
+
+  return `<div class="lead-card" id="card_${l.id}">
+    <div class="lead-header" onclick="toggleCard('${l.id}')">
+      <div class="lead-avatar">${ini}</div>
+      <div class="lead-info">
+        <div class="lead-name">${l.nombre||"Sin nombre"}</div>
+        <div class="lead-meta">${l.email||""} · ${l.telefono||""} · ${fecha}</div>
+      </div>
+      <div class="lead-right">
+        <div class="indice-badge">${l.indice_patrimonial||"—"}<span style="font-size:10px;font-weight:400;opacity:.5">/100</span></div>
+        <span class="status-badge s-${l.estado||"nuevo"}">${sm[l.estado]||l.estado||"NUEVO"}</span>
+        <span class="expand-icon">▼</span>
+      </div>
+    </div>
+    <div class="lead-detail">
+      <div class="detail-grid">
+        <div class="detail-item"><label>PERFIL</label><span>${l.perfil||"—"}</span></div>
+        <div class="detail-item"><label>PLAN REC.</label><span>${l.plan_recomendado||"—"}</span></div>
+        <div class="detail-item"><label>RÉGIMEN</label><span>${l.regimen_fiscal||"—"}</span></div>
+        <div class="detail-item"><label>EDAD</label><span>${l.edad||"—"} años</span></div>
+        <div class="detail-item"><label>RETIRO</label><span>${l.edad_retiro||"—"} años</span></div>
+        <div class="detail-item"><label>OBJETIVO</label><span>${l.objetivo_principal||"—"}</span></div>
+      </div>
+      <div class="corridas-title">📂 Corridas Prudential</div>
+      <div class="corridas-grid">${corridasHTML}</div>
+      ${analisisHTML}
+      <textarea class="notes-area" id="notes_${l.id}" placeholder="Notas internas del equipo...">${l.notas_equipo||""}</textarea>
+      <div class="action-row">
+        <button class="btn btn-primary" id="btnSubir_${l.id}" onclick="subirCorridas('${l.id}')">⬆️ Subir PDFs Seleccionados</button>
+        ${puedeAnalizar?`<button class="btn btn-secondary" id="btnAnalizar_${l.id}" onclick="analizarClaude('${l.id}')">🤖 Analizar con Claude</button>`:""}
+        ${puedeEmail?`<button class="btn btn-green" id="btnEmail_${l.id}" onclick="enviarEmail('${l.id}')">📧 Enviar Email al Cliente</button>`:""}
+        <button class="btn btn-secondary" onclick="saveNotes('${l.id}')">💾 Guardar Notas</button>
+        <button class="btn btn-red" onclick="deleteLead('${l.id}')">🗑 Eliminar</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function toggleCard(id){
+  document.getElementById("card_"+id).classList.toggle("expanded");
+}
+
+function markFile(leadId,tipo,dbKey,input){
+  if(!input.files[0]) return;
+  if(!pendingFiles[leadId]) pendingFiles[leadId]={};
+  pendingFiles[leadId][tipo]={file:input.files[0],dbKey};
+  const slot=document.getElementById("slot_"+leadId+"_"+tipo);
+  if(slot) slot.style.borderColor="var(--champ)";
+  const fn=document.getElementById("fn_"+leadId+"_"+tipo);
+  if(fn) fn.textContent="✓ "+input.files[0].name;
+}
+
+async function subirCorridas(leadId){
+  const files=pendingFiles[leadId];
+  if(!files||!Object.keys(files).length){showToast("Selecciona al menos un PDF primero","error");return;}
+  const btn=document.getElementById("btnSubir_"+leadId);
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Subiendo...';
+  try{
+    const updates={};
+    for(const [tipo,{file,dbKey}] of Object.entries(files)){
+      const path=`${leadId}/${tipo}_${Date.now()}.pdf`;
+      const url=await uploadPdf(file,path);
+      updates[dbKey]=url;
+    }
+    updates.estado="corridas_subidas";
+    updates.corridas_subidas_at=new Date().toISOString();
+    await sbFetch("/rest/v1/leads?id=eq."+leadId,{method:"PATCH",body:JSON.stringify(updates)});
+    delete pendingFiles[leadId];
+    showToast("✅ Corridas subidas correctamente","success");
+    await loadLeads();
+  }catch(e){showToast("Error: "+e.message,"error");}
+  finally{if(btn){btn.disabled=false;btn.innerHTML="⬆️ Subir PDFs Seleccionados";}}
+}
+
+async function analizarClaude(leadId){
+  const lead=allLeads.find(l=>l.id===leadId);
+  if(!lead){showToast("Lead no encontrado","error");return;}
+  const btn=document.getElementById("btnAnalizar_"+leadId);
+  btn.disabled=true;btn.innerHTML='<span class="spinner" style="border-top-color:#fff"></span> Analizando...';
+  try{
+    // Fetch los PDFs y convertir a base64
+    async function pdfToB64(url){
+      const r=await fetch(url,{headers:{"Authorization":"Bearer "+SUPABASE_SERVICE_KEY}});
+      const buf=await r.arrayBuffer();
+      return btoa(String.fromCharCode(...new Uint8Array(buf)));
+    }
+    const [b64vida,b64retiro,b64garantia]=await Promise.all([
+      pdfToB64(lead.corrida_vida_url),
+      pdfToB64(lead.corrida_retiro_url),
+      pdfToB64(lead.corrida_garantia_url)
+    ]);
+
+    const prompt=`Eres un experto en planeación patrimonial y seguros de vida Prudential México. 
+Analiza estas 3 corridas de seguros para el cliente:
+- Nombre: ${lead.nombre}
+- Edad: ${lead.edad} años
+- Perfil: ${lead.perfil}
+- Objetivo principal: ${lead.objetivo_principal}
+- Régimen fiscal: ${lead.regimen_fiscal}
+- Índice Patrimonial: ${lead.indice_patrimonial}/100
+- Plan recomendado por diagnóstico: ${lead.plan_recomendado}
+
+Las 3 corridas son:
+1. Vida Prudential (10 años pago) — más enfocado en protección/seguro de vida alto
+2. Retiro Vida Prudential (15 años pago) — más enfocado en rendimiento/rentas mensuales al retiro
+3. Garantía Prudential (20 años pago) — metas específicas + eficiencia fiscal
+
+Analiza cada PDF y proporciona:
+1. Una puntuación del 1 al 10 para cada plan según el perfil del cliente
+2. El plan ganador (el que mejor se adapta)
+3. Una explicación personalizada de 3-5 párrafos para el cliente explicando por qué ese plan es el ideal para su situación
+4. Puntos clave de cada plan (3 bullets por plan)
+
+Responde en este formato JSON exacto:
+{
+  "puntuaciones": {"vida": X, "retiro": X, "garantia": X},
+  "ganador": "vida|retiro|garantia",
+  "analisis": "texto completo aquí...",
+  "puntos_vida": ["punto1","punto2","punto3"],
+  "puntos_retiro": ["punto1","punto2","punto3"],
+  "puntos_garantia": ["punto1","punto2","punto3"]
+}`;
+
+    const apiRes=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        model:"claude-sonnet-4-6",
+        max_tokens:2000,
+        messages:[{role:"user",content:[
+          {type:"document",source:{type:"base64",media_type:"application/pdf",data:b64vida}},
+          {type:"document",source:{type:"base64",media_type:"application/pdf",data:b64retiro}},
+          {type:"document",source:{type:"base64",media_type:"application/pdf",data:b64garantia}},
+          {type:"text",text:prompt}
+        ]}]
+      })
+    });
+
+    const apiData=await apiRes.json();
+    const rawText=apiData.content.filter(c=>c.type==="text").map(c=>c.text).join("");
+    let parsed;
+    try{
+      const clean=rawText.replace(/```json|```/g,"").trim();
+      parsed=JSON.parse(clean);
+    }catch(e){
+      // Si no parsea como JSON, guardar el texto crudo
+      parsed={puntuaciones:{vida:0,retiro:0,garantia:0},ganador:"retiro",analisis:rawText,puntos_vida:[],puntos_retiro:[],puntos_garantia:[]};
+    }
+
+    await sbFetch("/rest/v1/leads?id=eq."+leadId,{
+      method:"PATCH",
+      body:JSON.stringify({
+        analisis_claude:parsed.analisis,
+        plan_ganador:parsed.ganador,
+        puntuacion_planes:JSON.stringify(parsed.puntuaciones),
+        estado:"analisis_listo"
+      })
+    });
+
+    showToast("✅ Análisis completado — Plan ganador: "+parsed.ganador.toUpperCase(),"success");
+    await loadLeads();
+  }catch(e){showToast("Error en análisis: "+e.message,"error");}
+  finally{if(btn){btn.disabled=false;btn.innerHTML="🤖 Analizar con Claude";}}
+}
+
+async function enviarEmail(leadId){
+  const lead=allLeads.find(l=>l.id===leadId);
+  if(!lead){return;}
+  const btn=document.getElementById("btnEmail_"+leadId);
+  btn.disabled=true;btn.innerHTML='<span class="spinner" style="border-top-color:#22c55e"></span> Enviando...';
+  try{
+    await fetch(MAKE_WEBHOOK,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        lead_id:lead.id,
+        nombre:lead.nombre,
+        email:lead.email,
+        plan_ganador:lead.plan_ganador,
+        analisis:lead.analisis_claude,
+        puntuaciones:lead.puntuacion_planes,
+        calendly:"https://calendly.com/david23reynoso",
+        accion:"enviar_resultado"
+      })
+    });
+    await sbFetch("/rest/v1/leads?id=eq."+leadId,{method:"PATCH",body:JSON.stringify({estado:"email_enviado",email_enviado_at:new Date().toISOString()})});
+    showToast("📧 Email enviado a "+lead.email,"success");
+    await loadLeads();
+  }catch(e){showToast("Error: "+e.message,"error");}
+  finally{if(btn){btn.disabled=false;btn.innerHTML="📧 Enviar Email al Cliente";}}
+}
+
+async function saveNotes(leadId){
+  const notes=document.getElementById("notes_"+leadId).value;
+  await sbFetch("/rest/v1/leads?id=eq."+leadId,{method:"PATCH",body:JSON.stringify({notas_equipo:notes})});
+  showToast("✅ Notas guardadas","success");
+}
+
+async function deleteLead(leadId){
+  if(!confirm("¿Eliminar este lead permanentemente?")) return;
+  await sbFetch("/rest/v1/leads?id=eq."+leadId,{method:"DELETE"});
+  showToast("Lead eliminado","success");
+  await loadLeads();
+}
+
+function showToast(msg,type=""){
+  const t=document.getElementById("toast");
+  t.textContent=msg;t.className="toast show "+type;
+  clearTimeout(window._tt);window._tt=setTimeout(()=>t.classList.remove("show"),4000);
+}
+
+setInterval(()=>{if(document.getElementById("adminScreen").style.display!=="none")loadLeads();},60000);
+</script>
+</body>
+</html>

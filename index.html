@@ -350,7 +350,7 @@ function calcular(){
   const nombreCliente=document.getElementById('nombre')?.value||'tú';
   const primerNombre=nombreCliente.trim().split(' ')[0];
 
-  retiroBars').innerHTML=`
+  document.getElementById('retiroBars').innerHTML=`
   <div class="ritem"><div class="ritem-top"><span>Capital meta de retiro</span><span>${fmt(capNec)}</span></div>
   <div class="rbar-bg"><div class="rbar-fill" style="width:100%;background:rgba(255,255,255,0.08)"></div></div></div>
   <div class="ritem"><div class="ritem-top"><span>Capacidad actual estimada</span><span>${pctCob}%</span></div>
@@ -526,4 +526,4 @@ function generarPDF(){
 function animateGauge(score){const total=245;const el=document.getElementById('gaugeFill');const num=document.getElementById('gaugeNum');let c=0;const iv=setInterval(()=>{c+=2;if(c>=score){c=score;clearInterval(iv);}num.textContent=c;const o=total-(c/100)*total;el.setAttribute('stroke-dashoffset',o);el.setAttribute('stroke',c>=70?'#CBA97E':c>=45?'#E2A860':'#E24B4A');},16);}
 </script>
 </body>
-</html> 
+</html>

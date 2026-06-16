@@ -378,6 +378,7 @@ function calcular(){
   </div>`;
   // ── LÓGICA DE PLAN PRUDENTIAL ──
   // seguro actual
+  const dependientes=gr('dep')||'0';
   const tieneSeguro=(seguro==='si');
   const tieneHijos=(dependientes==='si'||dependientes==='1'||(typeof dependientes==='string'&&dependientes!=='no'&&dependientes!=='0'));
   const tieneEmpresa=(regimen==='moral'||regimen==='mixto'||regimen==='general');

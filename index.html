@@ -459,11 +459,7 @@ function calcular(){
   // Si tiene empresa Y el plan principal no es Hombre Clave → mostrar Hombre Clave como adicional
   const mostrarHC=(tieneEmpresa&&planRec.n!=='Hombre Clave · Bienestar Prudential');
   
-  const serviciosAdicionales={
-    deduccion:[{i:'📊',n:'Optimización de flujos fiscales',d:'Redistribución inteligente de ingresos vía dividendos, honorarios y arrendamiento.'},{i:'📋',n:'Auditoría fiscal preventiva',d:'Revisión de CFDI, declaraciones y cumplimiento para blindar contingencias SAT.'}],
-    proteccion:[{i:'📜',n:'Testamento y plan sucesorio',d:'Estructuración completa para proteger y transmitir tu patrimonio con certeza jurídica.'},{i:'🏠',n:'Fideicomiso patrimonial',d:'Mecanismo para aislar y proteger bienes de riesgos legales, laborales o comerciales.'}],
-    rendimiento:[{i:'🏗️',n:'Estrategia de bienes raíces',d:'Plan de adquisición con análisis de ROI, plusvalía y eficiencia fiscal.'},{i:'💡',n:'Ingresos pasivos diversificados',d:'Diseño de múltiples fuentes: dividendos, renta, negocios franquiciados.'}]
-  };
+
 
   // ── 1 SOLO PLAN PRUDENTIAL — Lógica basada en Excels reales ──
   // Vida Prudential 10 años: mayor suma asegurada, protección familiar

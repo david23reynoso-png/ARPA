@@ -358,29 +358,43 @@ function calcular(){
   // Guardar lead en Supabase
   const emailVal = document.getElementById('email')?.value||'';
   const telVal = document.getElementById('telefono')?.value||'';
-  guardarLead({
-    nombre: nombre,
-    email: emailVal,
-    telefono: telVal,
-    edad: edad,
-    estado_civil: gr('civil')||'',
-    hijos: gr('hijos')||'0',
-    dependientes_economicos: gr('dep')||'0',
-    ingresos_mensuales: String(ingresos),
-    regimen_fiscal: regimen,
-    deudas: gr('deuda')||'ninguna',
-    bienes_inmuebles: gr('inmueble')||'0',
-    porcentaje_ahorro: gr('ahorro')||'10',
-    edad_retiro: edadRetiro,
-    monto_retiro_deseado: String(montoRetiro),
-    testamento: gr('testamento')||'no',
-    seguro_vida: seguro,
-    perfil_inversion: gr('perfil')||'conservador',
-    objetivo_principal: objetivo,
-    perfil: perfil,
-    indice_patrimonial: indice,
-    estado: 'nuevo'
-  });
+  // Guardar lead vía Make.com webhook
+  const ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2ZWVieXF2dGNhenhqZHFzc3RwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0NDcyOTMsImV4cCI6MjA5NzAyMzI5M30.zU4XVKVmZvQYZbjAAdtpZcTkeHIJILkosts79i5YILg';
+  fetch('https://aveebyqvtcazxjdqsstp.supabase.co/rest/v1/leads',{
+    method:'POST',
+    headers:{'apikey':ANON_KEY,'Authorization':'Bearer '+ANON_KEY,'Content-Type':'application/json','Prefer':'return=representation'},
+    body:JSON.stringify({
+      nombre: nombre,
+      email: emailVal,
+      telefono: telVal,
+      edad: edad,
+      estado_civil: gr('civil')||'',
+      hijos: gr('hijos')||'0',
+      dependientes_economicos: gr('dep')||'0',
+      ingresos_mensuales: String(ingresos),
+      regimen_fiscal: regimen,
+      deudas: gr('deuda')||'ninguna',
+      bienes_inmuebles: gr('inmueble')||'0',
+      porcentaje_ahorro: gr('ahorro')||'10',
+      edad_retiro: edadRetiro,
+      monto_retiro_deseado: String(montoRetiro),
+      testamento: gr('testamento')||'no',
+      seguro_vida: seguro,
+      perfil_inversion: gr('perfil')||'conservador',
+      objetivo_principal: objetivo,
+      perfil: perfil,
+      indice_patrimonial: indice,
+      estado: 'nuevo'
+    })
+  }).then(r=>r.json()).then(data=>{
+    if(data&&data[0]&&data[0].id){window._lastLeadId=data[0].id;}
+    // Disparar Make.com webhook
+    fetch('https://hook.us2.make.com/1694zmk9ehdx8v33qy5vgt',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({nombre,email:emailVal,telefono:telVal,perfil,indice_patrimonial:indice})
+    }).catch(()=>{});
+  }).catch(()=>{});
   const nivel=indice>=70?'alto':indice>=45?'medio':'bajo';
   const nivelTxt=indice>=70?'Solidez patrimonial alta':indice>=45?'En desarrollo':'Acción requerida';
   document.getElementById('nivelBadge').innerHTML='<span class="nivel-badge nivel-'+nivel+'">'+nivelTxt+'</span>';

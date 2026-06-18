@@ -366,7 +366,7 @@ function calcular(){
     asesor_financiero: gr('asesor')||'no',
     objetivo_principal: objetivo,
     perfil: perfil,
-    plan_recomendado: planRec?.n||'',
+    plan_recomendado: '',
     indice_patrimonial: indice,
     puntos_liquidez: lP,
     puntos_proteccion: sP,
@@ -535,6 +535,15 @@ function calcular(){
   planHTML += '<div style="margin-top:4px;margin-bottom:8px;font-size:11px;letter-spacing:2px;color:rgba(255,255,255,0.3);font-weight:600;text-transform:uppercase">Servicios Adicionales del Bufete</div>';
   planHTML += (serviciosAdicionales[perfil]||serviciosAdicionales.proteccion).map(function(pr){return '<div class="proditem"><div class="prodico">'+pr.i+'</div><div><div class="prodname">'+pr.n+'</div><div class="proddesc">'+pr.d+'</div></div></div>';}).join('');
   document.getElementById('prodList').innerHTML=planHTML;
+  // Actualizar plan_recomendado en Supabase si ya se guardó el lead
+  if(window._lastLeadId && planRec){
+    const ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2ZWVieXF2dGNhenhqZHFzc3RwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0NDcyOTMsImV4cCI6MjA5NzAyMzI5M30.zU4XVKVmZvQYZbjAAdtpZcTkeHIJILkosts79i5YILg';
+    fetch('https://aveebyqvtcazxjdqsstp.supabase.co/rest/v1/leads?id=eq.'+window._lastLeadId,{
+      method:'PATCH',
+      headers:{'apikey':ANON,'Authorization':'Bearer '+ANON,'Content-Type':'application/json'},
+      body:JSON.stringify({plan_recomendado:planRec.n})
+    }).catch(()=>{});
+  }
 }
 function generarPDF(){
   try{
@@ -737,6 +746,7 @@ async function guardarLead(datos){
         plan_recomendado: datos.plan_recomendado
       })
     }).catch(()=>{});
+    if(lead[0]?.id) window._lastLeadId = lead[0].id;
     return lead[0];
   } catch(e) {
     console.error("Error guardando lead:", e);

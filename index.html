@@ -465,39 +465,78 @@ function calcular(){
     rendimiento:[{i:'🏗️',n:'Estrategia de bienes raíces',d:'Plan de adquisición con análisis de ROI, plusvalía y eficiencia fiscal.'},{i:'💡',n:'Ingresos pasivos diversificados',d:'Diseño de múltiples fuentes: dividendos, renta, negocios franquiciados.'}]
   };
 
-  // Construir HTML del plan recomendado
-  const planHicon = planRec.i;
-  const planHname = planRec.n;
-  const planHbadge = planRec.badge;
-  const planHd = planRec.d;
-  const planHhl = planRec.highlight;
+  // ── 1 SOLO PLAN PRUDENTIAL — Lógica basada en Excels reales ──
+  // Vida Prudential 10 años: mayor suma asegurada, protección familiar
+  // Retiro Vida Prudential 15 años: rentas mensuales al retiro, mayor rendimiento
+  // Hombre Clave: empresa con necesidad de deducción fiscal
 
-  let planHTML = '<div style="margin-bottom:10px;font-size:11px;letter-spacing:2px;color:#CBA97E;font-weight:700;text-transform:uppercase">⭐ Plan Prudential Recomendado para Ti</div>';
-  planHTML += '<div style="border:1.5px solid rgba(203,169,126,0.5);border-radius:14px;padding:20px;margin-bottom:8px;background:linear-gradient(135deg,rgba(203,169,126,0.1),rgba(203,169,126,0.03))">';
+  // Razón personalizada según el perfil y datos del cliente
+  let planReason = '';
+  let planDetailHTML = '';
+
+  if(perfil === 'deduccion' && tieneEmpresa){
+    planReason = 'Tu estructura empresarial es el activo más importante que debes proteger. Este plan te permite deducir el 100% de la prima como gasto de negocio mientras proteges a la empresa ante la pérdida de un elemento clave.';
+    planDetailHTML = '<div style="background:rgba(203,169,126,0.06);border-radius:8px;padding:12px;margin-top:10px">';
+    planDetailHTML += '<div style="font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:1px;margin-bottom:6px">POR QUÉ ESTE PLAN PARA TI</div>';
+    planDetailHTML += '<div style="font-size:12px;color:rgba(255,255,255,0.75);line-height:1.6">'+planReason+'</div>';
+    planDetailHTML += '</div>';
+  } else if(perfil === 'rendimiento' && tieneSeguro==='si'){
+    // Retiro Vida — más rendimiento, para quien ya tiene protección
+    planReason = 'Ya cuentas con protección de vida. El siguiente paso es hacer crecer tu patrimonio con rentas mensuales garantizadas al retiro. Con '+nombre+', a los '+edadRetiro+' años podrías recibir rentas mensuales de por vida con el capital acumulado.';
+    planDetailHTML = '<div style="background:rgba(203,169,126,0.06);border-radius:8px;padding:12px;margin-top:10px">';
+    planDetailHTML += '<div style="font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:1px;margin-bottom:6px">POR QUÉ ESTE PLAN PARA TI</div>';
+    planDetailHTML += '<div style="font-size:12px;color:rgba(255,255,255,0.75);line-height:1.6">'+planReason+'</div>';
+    planDetailHTML += '</div>';
+  } else {
+    // Vida Prudential — protección familiar, sin seguro actual o tiene dependientes
+    const tieneHijosBool=(gr('hijos')||'0')!=='0'&&(gr('hijos')||'0')!=='Ninguno';
+    const tieneDep=(gr('dep')||'0')!=='0'&&(gr('dep')||'0')!=='Ninguno';
+    if(tieneHijosBool||tieneDep){
+      planReason = 'Tienes personas que dependen de ti. El Vida Prudential garantiza que tu familia esté protegida económicamente desde el día uno, con una suma asegurada alta y solo 10 años de pago.';
+    } else {
+      planReason = 'No contar con un seguro de vida es el mayor riesgo patrimonial. Este plan te da cobertura inmediata con prima baja y la mayor suma asegurada del mercado por solo 10 años de pago.';
+    }
+    planDetailHTML = '<div style="background:rgba(203,169,126,0.06);border-radius:8px;padding:12px;margin-top:10px">';
+    planDetailHTML += '<div style="font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:1px;margin-bottom:6px">POR QUÉ ESTE PLAN PARA TI</div>';
+    planDetailHTML += '<div style="font-size:12px;color:rgba(255,255,255,0.75);line-height:1.6">'+planReason+'</div>';
+    planDetailHTML += '</div>';
+  }
+
+  let planHTML = '<div style="margin-bottom:12px;font-size:11px;letter-spacing:2px;color:#CBA97E;font-weight:700;text-transform:uppercase">⭐ Tu Plan Prudential Recomendado</div>';
+  planHTML += '<div style="border:1.5px solid rgba(203,169,126,0.5);border-radius:14px;padding:20px;margin-bottom:16px;background:linear-gradient(135deg,rgba(203,169,126,0.1),rgba(203,169,126,0.03))">';
   planHTML += '<div style="display:flex;align-items:flex-start;gap:14px">';
-  planHTML += '<div style="font-size:28px">'+planHicon+'</div>';
+  planHTML += '<div style="font-size:28px">'+planRec.i+'</div>';
   planHTML += '<div style="flex:1">';
   planHTML += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap">';
-  planHTML += '<div style="font-size:15px;font-weight:700;color:#fff">'+planHname+'</div>';
-  planHTML += '<span style="background:#CBA97E;color:#0B0F14;font-size:9px;font-weight:800;padding:3px 8px;border-radius:20px;letter-spacing:1px">'+planHbadge+'</span>';
+  planHTML += '<div style="font-size:15px;font-weight:700;color:#fff">'+planRec.n+'</div>';
+  planHTML += '<span style="background:#CBA97E;color:#0B0F14;font-size:9px;font-weight:800;padding:3px 8px;border-radius:20px;letter-spacing:1px">'+planRec.badge+'</span>';
   planHTML += '</div>';
-  planHTML += '<div style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.6;margin-bottom:10px">'+planHd+'</div>';
-  planHTML += '<div style="font-size:10px;color:#CBA97E;font-weight:600;letter-spacing:0.5px">✦ '+planHhl+'</div>';
+  planHTML += '<div style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.6;margin-bottom:8px">'+planRec.d+'</div>';
+  planHTML += '<div style="font-size:10px;color:#CBA97E;font-weight:600;letter-spacing:0.5px">✦ '+planRec.highlight+'</div>';
+  planHTML += planDetailHTML;
   planHTML += '</div></div></div>';
 
+  // Hombre Clave adicional si tiene empresa y plan principal no es HC
   if(mostrarHC){
-    planHTML += '<div style="border:1px solid rgba(203,169,126,0.25);border-radius:12px;padding:16px;margin-bottom:16px;background:rgba(255,255,255,0.02)">';
-    planHTML += '<div style="display:flex;align-items:flex-start;gap:12px">';
-    planHTML += '<div style="font-size:22px">🏢</div>';
+    planHTML += '<div style="border:1px solid rgba(203,169,126,0.2);border-radius:12px;padding:14px;margin-bottom:16px;background:rgba(255,255,255,0.02)">';
+    planHTML += '<div style="display:flex;align-items:flex-start;gap:10px">';
+    planHTML += '<div style="font-size:20px">🏢</div>';
     planHTML += '<div><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">';
     planHTML += '<div style="font-size:13px;font-weight:600;color:#fff">Hombre Clave · Bienestar Prudential</div>';
-    planHTML += '<span style="background:rgba(203,169,126,0.15);color:#CBA97E;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px">También recomendado</span>';
+    planHTML += '<span style="background:rgba(203,169,126,0.15);color:#CBA97E;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px">Complementario</span>';
     planHTML += '</div>';
-    planHTML += '<div style="font-size:12px;color:rgba(255,255,255,0.6);line-height:1.5">Al tener empresa, este seguro complementa tu plan. Prima 100% deducible.</div>';
+    planHTML += '<div style="font-size:12px;color:rgba(255,255,255,0.55);line-height:1.5">Ideal para tu empresa. Prima 100% deducible. Protege el negocio ante la ausencia de un elemento clave.</div>';
     planHTML += '</div></div></div>';
   }
 
-  planHTML += '<div style="margin-top:20px;margin-bottom:10px;font-size:11px;letter-spacing:2px;color:rgba(255,255,255,0.35);font-weight:600;text-transform:uppercase">Servicios Adicionales del Bufete</div>';
+  // Solo 2 servicios adicionales del bufete más relevantes
+  const serviciosAdicionales={
+    deduccion:[{i:'📊',n:'Optimización de flujos fiscales',d:'Redistribución inteligente vía dividendos, honorarios y arrendamiento para reducir tu carga fiscal.'},{i:'📋',n:'Auditoría fiscal preventiva',d:'Revisión de CFDI y declaraciones para blindar contingencias SAT antes de que ocurran.'}],
+    proteccion:[{i:'📜',n:'Testamento y plan sucesorio',d:'Estructuración completa para proteger y transmitir tu patrimonio con certeza jurídica.'},{i:'🏠',n:'Fideicomiso patrimonial',d:'Mecanismo para aislar y proteger bienes de riesgos legales, laborales o comerciales.'}],
+    rendimiento:[{i:'🏗️',n:'Estrategia de bienes raíces',d:'Plan de adquisición inmobiliaria con análisis de ROI, plusvalía y eficiencia fiscal.'},{i:'💡',n:'Ingresos pasivos diversificados',d:'Diseño de múltiples fuentes: dividendos, renta y negocios para construir patrimonio.'}]
+  };
+
+  planHTML += '<div style="margin-top:4px;margin-bottom:8px;font-size:11px;letter-spacing:2px;color:rgba(255,255,255,0.3);font-weight:600;text-transform:uppercase">Servicios Adicionales del Bufete</div>';
   planHTML += (serviciosAdicionales[perfil]||serviciosAdicionales.proteccion).map(function(pr){return '<div class="proditem"><div class="prodico">'+pr.i+'</div><div><div class="prodname">'+pr.n+'</div><div class="proddesc">'+pr.d+'</div></div></div>';}).join('');
   document.getElementById('prodList').innerHTML=planHTML;
 }
@@ -505,65 +544,170 @@ function generarPDF(){
   try{
     const {jsPDF}=window.jspdf;
     const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-    const W=210,margin=20;
-    // Fondo
-    doc.setFillColor(11,15,20);doc.rect(0,0,W,297,'F');
-    // Header
-    doc.setFillColor(13,27,36);doc.rect(0,0,W,40,'F');
-    doc.setTextColor(203,169,126);doc.setFontSize(22);doc.setFont('helvetica','bold');
-    doc.text('ARPA',margin,18);
-    doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(180,160,120);
-    doc.text('ARQUITECTURA PATRIMONIAL INTELIGENTE',margin,24);
-    doc.setTextColor(120,120,120);doc.text('YERRO BUFETE FISCAL · GUADALAJARA',margin,30);
-    doc.text('Confidencial · Solo para uso del cliente',margin,36);
-    // Nombre cliente
+    const W=210,M=18;
+    const navy=[11,15,20], champagne=[203,169,126], white=[255,255,255], gray=[160,160,160], darkgray=[80,80,80];
+    let y=0;
+
+    // ── HEADER ──
+    doc.setFillColor(...navy);doc.rect(0,0,W,297,'F');
+    doc.setFillColor(13,27,36);doc.rect(0,0,W,42,'F');
+    doc.setDrawColor(...champagne);doc.setLineWidth(0.5);doc.line(0,42,W,42);
+    doc.setTextColor(...champagne);doc.setFontSize(20);doc.setFont('helvetica','bold');
+    doc.text('ARPA',M,16);
+    doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(...gray);
+    doc.text('ARQUITECTURA PATRIMONIAL INTELIGENTE',M,23);
+    doc.text('YERRO BUFETE FISCAL · David Reynoso CPC & Lic. Fiscal · Guadalajara',M,29);
+    doc.text('Diagnóstico Confidencial · '+new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'}),M,35);
+    y=52;
+
+    // ── NOMBRE Y DATOS PRINCIPALES ──
     const nombre=document.getElementById('nombre')?.value||'Cliente';
     const edad=document.getElementById('edad')?.value||'—';
-    doc.setTextColor(255,255,255);doc.setFontSize(14);doc.setFont('helvetica','bold');
-    doc.text('DIAGNÓSTICO PATRIMONIAL ARPA',margin,54);
-    doc.setFontSize(11);doc.setFont('helvetica','normal');doc.setTextColor(200,200,200);
-    doc.text(nombre+' · '+edad+' años',margin,62);
-    doc.text('Fecha: '+new Date().toLocaleDateString('es-MX'),margin,68);
-    // Índice
+    const email=document.getElementById('email')?.value||'';
+    const tel=document.getElementById('telefono')?.value||'';
+    doc.setTextColor(...white);doc.setFontSize(16);doc.setFont('helvetica','bold');
+    doc.text(nombre.toUpperCase(),M,y);y+=7;
+    doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(...gray);
+    let datosLine=edad+' años';
+    if(email) datosLine+=' · '+email;
+    if(tel) datosLine+=' · '+tel;
+    doc.text(datosLine,M,y);y+=10;
+
+    // ── ÍNDICE ARPA ──
     const score=parseInt(document.getElementById('gaugeNum')?.textContent||'0');
-    doc.setFillColor(13,27,36);doc.roundedRect(margin,76,W-margin*2,28,4,4,'F');
-    doc.setTextColor(203,169,126);doc.setFontSize(28);doc.setFont('helvetica','bold');
-    doc.text(String(score),margin+8,97);
-    doc.setFontSize(10);doc.setFont('helvetica','normal');doc.setTextColor(180,160,120);
-    doc.text('/100 · Índice Patrimonial ARPA',margin+22,97);
-    // Perfil
+    const nivel=score>=70?'Solidez patrimonial alta':score>=45?'En desarrollo':'Acción requerida';
+    doc.setFillColor(13,27,36);doc.roundedRect(M,y,W-M*2,22,3,3,'F');
+    doc.setDrawColor(...champagne);doc.setLineWidth(0.3);doc.roundedRect(M,y,W-M*2,22,3,3,'S');
+    doc.setTextColor(...champagne);doc.setFontSize(24);doc.setFont('helvetica','bold');
+    doc.text(String(score),M+6,y+15);
+    doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(...gray);
+    doc.text('/100 · Índice Patrimonial ARPA',M+20,y+10);
+    doc.setTextColor(...champagne);doc.setFontSize(10);doc.setFont('helvetica','bold');
+    doc.text(nivel,M+20,y+17);
+    y+=30;
+
+    // ── 4 DIMENSIONES ──
+    const dims=[
+      {label:'Liquidez & Ahorro',id:'puntosl',color:[100,180,140]},
+      {label:'Protección',id:'puntoss',color:[100,140,220]},
+      {label:'Retiro',id:'puntosr',color:[203,169,126]},
+      {label:'Eficiencia Fiscal',id:'puntosf',color:[180,140,100]}
+    ];
+    // Leer puntos del DOM
+    const lP=parseInt(document.querySelectorAll('.dim-score')?.[0]?.textContent)||0;
+    const sP=parseInt(document.querySelectorAll('.dim-score')?.[1]?.textContent)||0;
+    const rP=parseInt(document.querySelectorAll('.dim-score')?.[2]?.textContent)||0;
+    const fP=parseInt(document.querySelectorAll('.dim-score')?.[3]?.textContent)||0;
+    const puntos=[lP,sP,rP,fP];
+    const colW=(W-M*2)/4-2;
+    dims.forEach((d,i)=>{
+      const cx=M+i*(colW+2);
+      doc.setFillColor(13,27,36);doc.roundedRect(cx,y,colW,16,2,2,'F');
+      doc.setDrawColor(...d.color);doc.setLineWidth(0.2);doc.roundedRect(cx,y,colW,16,2,2,'S');
+      doc.setTextColor(...d.color);doc.setFontSize(14);doc.setFont('helvetica','bold');
+      doc.text(String(puntos[i]),cx+colW/2,y+10,{align:'center'});
+      doc.setTextColor(...darkgray);doc.setFontSize(7);doc.setFont('helvetica','normal');
+      doc.text(d.label,cx+colW/2,y+15,{align:'center'});
+    });
+    y+=24;
+
+    // ── PERFIL ──
     const perfilEl=document.querySelector('.perfil-nombre');
-    const perfilText=perfilEl?perfilEl.textContent:'—';
-    doc.setTextColor(255,255,255);doc.setFontSize(12);doc.setFont('helvetica','bold');
-    doc.text('Perfil: '+perfilText,margin,116);
-    // Análisis retiro
-    const capEl=document.querySelector('[data-cap]');
-    doc.setTextColor(200,200,200);doc.setFontSize(10);doc.setFont('helvetica','normal');
-    const retiroLines=document.querySelector('.retiro-analisis');
-    if(retiroLines){
-      const lines=doc.splitTextToSize(retiroLines.innerText.replace(/\s+/g,' '),W-margin*2);
-      doc.text(lines,margin,126);
+    const perfilNom=perfilEl?perfilEl.textContent:'—';
+    const perfilDescEl=document.querySelector('.perfil-desc');
+    const perfilDesc=perfilDescEl?perfilDescEl.textContent:'';
+    doc.setTextColor(...champagne);doc.setFontSize(10);doc.setFont('helvetica','bold');
+    doc.text('PERFIL DOMINANTE',M,y);y+=6;
+    doc.setFillColor(13,27,36);doc.roundedRect(M,y,W-M*2,18,3,3,'F');
+    doc.setTextColor(...white);doc.setFontSize(11);doc.setFont('helvetica','bold');
+    doc.text(perfilNom,M+5,y+8);
+    doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(...gray);
+    const descLines=doc.splitTextToSize(perfilDesc,W-M*2-10);
+    if(descLines[0]) doc.text(descLines[0],M+5,y+14);
+    y+=26;
+
+    // ── ANÁLISIS DE RETIRO / CONCIENCIA PATRIMONIAL ──
+    const retiroBarsEl=document.getElementById('retiroBars');
+    if(retiroBarsEl){
+      doc.setTextColor(...champagne);doc.setFontSize(10);doc.setFont('helvetica','bold');
+      doc.text('ANÁLISIS DE RETIRO',M,y);y+=6;
+      const retiroText=retiroBarsEl.textContent.replace(/\s+/g,' ').trim().substring(0,300);
+      doc.setTextColor(...gray);doc.setFontSize(8);doc.setFont('helvetica','normal');
+      const retLines=doc.splitTextToSize(retiroText,W-M*2);
+      doc.text(retLines.slice(0,4),M,y);
+      y+=retLines.slice(0,4).length*4+6;
     }
-    // Plan recomendado
-    doc.setTextColor(203,169,126);doc.setFontSize(11);doc.setFont('helvetica','bold');
-    doc.text('PLAN PRUDENTIAL RECOMENDADO',margin,160);
-    const planEl=document.querySelector('.proditem .prodname');
+
+    // ── PLAN RECOMENDADO ──
+    doc.setTextColor(...champagne);doc.setFontSize(10);doc.setFont('helvetica','bold');
+    doc.text('PLAN PRUDENTIAL RECOMENDADO',M,y);y+=6;
+    const planEl=document.querySelector('#prodList .prodname');
+    const planDescEl=document.querySelector('#prodList .proddesc');
+    const planBadgeEl=document.querySelector('#prodList span[style*="background:#CBA97E"]');
+    const porqueEl=document.querySelector('#prodList [style*="POR QUÉ"]');
     if(planEl){
-      doc.setTextColor(255,255,255);doc.setFontSize(10);doc.setFont('helvetica','normal');
-      doc.text(planEl.textContent,margin,168);
-      const descEl=planEl.parentElement?.querySelector('.proddesc');
-      if(descEl){
-        const dlines=doc.splitTextToSize(descEl.textContent,W-margin*2);
-        doc.text(dlines,margin,175);
+      doc.setFillColor(13,27,36);
+      const planBox=planDescEl?28:18;
+      doc.roundedRect(M,y,W-M*2,planBox,3,3,'F');
+      doc.setDrawColor(...champagne);doc.setLineWidth(0.3);doc.roundedRect(M,y,W-M*2,planBox,3,3,'S');
+      doc.setTextColor(...white);doc.setFontSize(12);doc.setFont('helvetica','bold');
+      doc.text(planEl.textContent,M+5,y+8);
+      if(planBadgeEl){
+        doc.setTextColor(...champagne);doc.setFontSize(8);
+        doc.text(planBadgeEl.textContent,W-M-5,y+8,{align:'right'});
+      }
+      if(planDescEl){
+        doc.setTextColor(...gray);doc.setFontSize(8);doc.setFont('helvetica','normal');
+        const pd=doc.splitTextToSize(planDescEl.textContent,W-M*2-10);
+        doc.text(pd.slice(0,2),M+5,y+15);
+      }
+      y+=planBox+4;
+    }
+    // Razón personalizada
+    if(porqueEl){
+      const razon=porqueEl.textContent.replace(/\s+/g,' ').trim();
+      if(razon.length>10){
+        doc.setTextColor(...gray);doc.setFontSize(8);doc.setFont('helvetica','italic');
+        const rLines=doc.splitTextToSize(razon,W-M*2);
+        doc.text(rLines.slice(0,3),M,y);
+        y+=rLines.slice(0,3).length*4+4;
       }
     }
-    // CTA
-    doc.setFillColor(203,169,126);doc.roundedRect(margin,240,W-margin*2,18,4,4,'F');
-    doc.setTextColor(11,15,20);doc.setFontSize(11);doc.setFont('helvetica','bold');
-    doc.text('Agenda tu sesión gratuita: calendly.com/david23reynoso',W/2,251,{align:'center'});
-    // Footer
-    doc.setTextColor(80,80,80);doc.setFontSize(8);
-    doc.text('YERRO BUFETE FISCAL · David Reynoso CPC & Lic. Fiscal · Guadalajara, Jalisco',W/2,285,{align:'center'});
+
+    // ── DATOS DEL CUESTIONARIO ──
+    if(y<220){
+      doc.setTextColor(...champagne);doc.setFontSize(9);doc.setFont('helvetica','bold');
+      doc.text('DATOS DEL CUESTIONARIO',M,y);y+=5;
+      const ingresos=document.getElementById('ingresos')?.options?.[document.getElementById('ingresos')?.selectedIndex]?.text||'—';
+      const regimen=document.getElementById('regimen')?.options?.[document.getElementById('regimen')?.selectedIndex]?.text||'—';
+      const seguro=document.querySelector('input[name="seguro"]:checked')?.parentElement?.querySelector('span')?.textContent||'—';
+      const objetivo=document.querySelector('input[name="objetivo"]:checked')?.parentElement?.querySelector('span')?.textContent||'—';
+      const datos=[
+        ['Edad',edad+' años'],['Ingresos mensuales',ingresos],
+        ['Régimen fiscal',regimen],['Seguro de vida',seguro],
+        ['Objetivo patrimonial',objetivo]
+      ];
+      datos.forEach(([k,v])=>{
+        if(y>265) return;
+        doc.setTextColor(...darkgray);doc.setFontSize(7.5);doc.setFont('helvetica','bold');
+        doc.text(k+':',M,y);
+        doc.setFont('helvetica','normal');doc.setTextColor(...gray);
+        doc.text(String(v),M+45,y);
+        y+=5;
+      });
+      y+=4;
+    }
+
+    // ── CTA ──
+    if(y>240) y=240;
+    doc.setFillColor(...champagne);doc.roundedRect(M,y,W-M*2,14,3,3,'F');
+    doc.setTextColor(...navy);doc.setFontSize(10);doc.setFont('helvetica','bold');
+    doc.text('Agenda tu sesión gratuita · calendly.com/david23reynoso',W/2,y+9,{align:'center'});
+
+    // ── FOOTER ──
+    doc.setTextColor(...darkgray);doc.setFontSize(7.5);doc.setFont('helvetica','normal');
+    doc.text('YERRO BUFETE FISCAL · Confidencial · Solo para uso del cliente · Guadalajara, Jalisco',W/2,287,{align:'center'});
+
     doc.save('Diagnostico-ARPA-'+nombre.replace(/\s+/g,'-')+'.pdf');
   }catch(e){alert('Error generando PDF: '+e.message);}
 }

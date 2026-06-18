@@ -247,6 +247,16 @@ body{font-family:'Montserrat',sans-serif;background:#f5f5f0;display:flex;justify
           <label class="ro"><input type="radio" name="objetivo" value="mixto"><span>Todo lo anterior</span></label>
         </div></div>
       </div>
+      <div class="fg2" style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(203,169,126,0.15)">
+        <div>
+          <div class="fl">Correo electrónico <span style="color:var(--champagne)">*</span></div>
+          <input type="email" class="fi" id="email" placeholder="tu@correo.com">
+        </div>
+        <div>
+          <div class="fl">Teléfono / WhatsApp <span style="color:var(--champagne)">*</span></div>
+          <input type="tel" class="fi" id="telefono" placeholder="333 123 4567">
+        </div>
+      </div>
       <div class="navbtn">
         <button class="btn-p" onclick="goStep(2)">← Atrás</button>
         <button class="btn-submit" onclick="calcular()">Generar mi Diagnóstico ARPA</button>
@@ -332,6 +342,38 @@ function calcular(){
   document.getElementById('resultsArea').classList.remove('hidden');
   document.getElementById('resNombre').textContent=nombre.toUpperCase();
   animateGauge(indice);
+  // Guardar lead en Supabase
+  const emailVal = document.getElementById('email')?.value||'';
+  const telVal = document.getElementById('telefono')?.value||'';
+  guardarLead({
+    nombre: nombre,
+    email: emailVal,
+    telefono: telVal,
+    edad: edad,
+    estado_civil: gr('civil')||'',
+    hijos: gr('hijos')||'0',
+    dependientes_economicos: gr('dep')||'0',
+    ingresos_mensuales: String(ingresos),
+    regimen_fiscal: regimen,
+    deudas: gr('deuda')||'ninguna',
+    bienes_inmuebles: gr('inmueble')||'0',
+    porcentaje_ahorro: gr('ahorro')||'10',
+    edad_retiro: edadRetiro,
+    monto_retiro_deseado: String(montoRetiro),
+    testamento: gr('testamento')||'no',
+    seguro_vida: seguro,
+    perfil_inversion: gr('perfil')||'conservador',
+    asesor_financiero: gr('asesor')||'no',
+    objetivo_principal: objetivo,
+    perfil: perfil,
+    plan_recomendado: planRec?.n||'',
+    indice_patrimonial: indice,
+    puntos_liquidez: lP,
+    puntos_proteccion: sP,
+    puntos_retiro: rP,
+    puntos_fiscal: fP,
+    estado: 'nuevo'
+  });
   const nivel=indice>=70?'alto':indice>=45?'medio':'bajo';
   const nivelTxt=indice>=70?'Solidez patrimonial alta':indice>=45?'En desarrollo':'Acción requerida';
   document.getElementById('nivelBadge').innerHTML='<span class="nivel-badge nivel-'+nivel+'">'+nivelTxt+'</span>';
@@ -524,6 +566,42 @@ function generarPDF(){
     doc.text('YERRO BUFETE FISCAL · David Reynoso CPC & Lic. Fiscal · Guadalajara, Jalisco',W/2,285,{align:'center'});
     doc.save('Diagnostico-ARPA-'+nombre.replace(/\s+/g,'-')+'.pdf');
   }catch(e){alert('Error generando PDF: '+e.message);}
+}
+
+async function guardarLead(datos){
+  try{
+    const res = await fetch("https://aveebyqvtcazxjdqsstp.supabase.co/rest/v1/leads", {
+      method: "POST",
+      headers: {
+        "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2ZWVieXF2dGNhenhqZHFzc3RwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0NDcyOTMsImV4cCI6MjA5NzAyMzI5M30.zU4XVKVmZvQYZbjAAdtpZcTkeHIJILkosts79i5YILg",
+        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2ZWVieXF2dGNhenhqZHFzc3RwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0NDcyOTMsImV4cCI6MjA5NzAyMzI5M30.zU4XVKVmZvQYZbjAAdtpZcTkeHIJILkosts79i5YILg",
+        "Content-Type": "application/json",
+        "Prefer": "return=representation"
+      },
+      body: JSON.stringify(datos)
+    });
+    if(!res.ok) throw new Error(await res.text());
+    const lead = await res.json();
+    // Notificar a Make.com
+    fetch("https://hook.us2.make.com/1694zmk9ehdx8v33qy5vgt", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        accion: "nuevo_lead",
+        lead_id: lead[0]?.id,
+        nombre: datos.nombre,
+        email: datos.email,
+        telefono: datos.telefono,
+        perfil: datos.perfil,
+        indice: datos.indice_patrimonial,
+        plan_recomendado: datos.plan_recomendado
+      })
+    }).catch(()=>{});
+    return lead[0];
+  } catch(e) {
+    console.error("Error guardando lead:", e);
+    return null;
+  }
 }
 function animateGauge(score){const total=245;const el=document.getElementById('gaugeFill');const num=document.getElementById('gaugeNum');let c=0;const iv=setInterval(()=>{c+=2;if(c>=score){c=score;clearInterval(iv);}num.textContent=c;const o=total-(c/100)*total;el.setAttribute('stroke-dashoffset',o);el.setAttribute('stroke',c>=70?'#CBA97E':c>=45?'#E2A860':'#E24B4A');},16);}
 </script>

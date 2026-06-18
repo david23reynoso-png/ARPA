@@ -342,6 +342,19 @@ function calcular(){
   document.getElementById('resultsArea').classList.remove('hidden');
   document.getElementById('resNombre').textContent=nombre.toUpperCase();
   animateGauge(indice);
+  window._arpaData = {
+    nombre: nombre, edad: edad,
+    emailVal: document.getElementById('email')?.value||'',
+    telVal: document.getElementById('telefono')?.value||'',
+    indice: indice,
+    nivel: indice>=70?'Solidez patrimonial alta':indice>=45?'En desarrollo':'Acción requerida',
+    perfil: perfil, lP: 0, sP: 0, rP: 0, fP: 0,
+    ingresos: ingresos, regimen: regimen, seguro: seguro, objetivo: objetivo,
+    edadRetiro: edadRetiro, montoRetiro: montoRetiro,
+    anosRetiro: Math.max(1,85-edadRetiro),
+    capitalTotal: montoRetiro*12*Math.max(1,85-edadRetiro),
+    ahorroSinPlan: montoRetiro*12*Math.max(1,85-edadRetiro)/Math.max(1,(edadRetiro-(parseInt(edad)||35))*12)
+  };
   // Guardar lead en Supabase
   const emailVal = document.getElementById('email')?.value||'';
   const telVal = document.getElementById('telefono')?.value||'';

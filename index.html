@@ -376,7 +376,6 @@ function calcular(){
     testamento: gr('testamento')||'no',
     seguro_vida: seguro,
     perfil_inversion: gr('perfil')||'conservador',
-    asesor_financiero: gr('asesor')||'no',
     objetivo_principal: objetivo,
     perfil: perfil,
     indice_patrimonial: indice,
@@ -388,7 +387,7 @@ function calcular(){
   const descs={alto:'Tus bases patrimoniales son sólidas. El momento de optimizar y multiplicar es ahora.',medio:'Hay oportunidades claras de mejora. Con la estrategia correcta, puedes alcanzar tu siguiente nivel.',bajo:'Detectamos vulnerabilidades importantes. Una consulta ahora puede proteger todo lo que has construido.'};
   document.getElementById('gaugeDesc').textContent=descs[nivel];
   document.getElementById('dimGrid').innerHTML='<div class="dim"><div class="dim-n">Liquidez & ahorro</div><div class="dim-v">'+sL+'/25</div></div><div class="dim"><div class="dim-n">Protección</div><div class="dim-v">'+sP+'/25</div></div><div class="dim"><div class="dim-n">Retiro</div><div class="dim-v">'+sR+'/25</div></div><div class="dim"><div class="dim-n">Eficiencia fiscal</div><div class="dim-v">'+sF+'/25</div></div>';
-  if(window._arpaData){window._arpaData.lP=lP;window._arpaData.sP=sP;window._arpaData.rP=rP;window._arpaData.fP=fP;}
+  if(window._arpaData){window._arpaData.lP=sL;window._arpaData.sP=sP;window._arpaData.rP=sR;window._arpaData.fP=sF;}
   const perfiles={deduccion:{emoji:'💰',tipo:'Perfil Deducción',nombre:'Optimización Fiscal',color:'#CBA97E',bg:'rgba(203,169,126,0.08)',desc:'Tu estructura de ingresos tiene oportunidades claras de eficiencia tributaria. Con la figura jurídica correcta y un plan de flujos bien diseñado, puedes reducir significativamente tu carga fiscal de manera 100% legal.'},proteccion:{emoji:'🛡️',tipo:'Perfil Protección',nombre:'Blindaje Patrimonial',color:'#A8C4B0',bg:'rgba(19,35,30,0.4)',desc:'Detectamos que tu patrimonio requiere mayor estructura de protección. Un plan sucesorio sólido, cobertura de vida adecuada y separación jurídica correcta son prioridades urgentes para blindar tu legado.'},rendimiento:{emoji:'🚀',tipo:'Perfil Rendimiento',nombre:'Crecimiento Patrimonial',color:'#CBA97E',bg:'rgba(13,27,36,0.6)',desc:'Tus bases son lo suficientemente sólidas para escalar. El siguiente paso es un portafolio estructurado que genere ingresos pasivos y acelere tu independencia financiera con eficiencia fiscal.'}};
   const p=perfiles[perfil];
   document.getElementById('perfilCard').innerHTML='<div class="pcard" style="background:'+p.bg+'"><div class="picon">'+p.emoji+'</div><div><div class="ptype" style="color:'+p.color+'">'+p.tipo+'</div><div class="pname">'+p.nombre+'</div><div class="pdesc">'+p.desc+'</div></div></div>';

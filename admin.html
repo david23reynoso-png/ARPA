@@ -255,8 +255,14 @@ function buildCard(l){
   let analisisHTML="";
   if(l.analisis_claude){
     let sc={};try{sc=JSON.parse(l.puntuacion_planes||"{}");}catch(e){}
+    let rv={},rr={},rg={};
+    try{rv=JSON.parse(l.resumen_vida||"{}");}catch(e){}
+    try{rr=JSON.parse(l.resumen_retiro||"{}");}catch(e){}
+    try{rg=JSON.parse(l.resumen_garantia||"{}");}catch(e){}
+    const planNames={vida:"VIDA PRUDENTIAL",retiro:"RETIRO VIDA PRUDENTIAL",garantia:"GARANTÍA PRUDENTIAL"};
+    const resumenes={vida:rv,retiro:rr,garantia:rg};
     analisisHTML=`<div class="analisis-box">
-      <div class="analisis-title">📊 Análisis Claude — Plan Ganador: ${(l.plan_ganador||"").toUpperCase()}</div>
+      <div class="analisis-title">📊 Análisis Claude — Plan Ganador: ${planNames[l.plan_ganador]||l.plan_ganador||"—"}</div>
       <div class="planes-scores">
         ${[{k:"vida",n:"VIDA"},{k:"retiro",n:"RETIRO VIDA"},{k:"garantia",n:"GARANTÍA"}].map(p=>`
         <div class="plan-score ${l.plan_ganador===p.k?"ganador":""}">
@@ -266,9 +272,30 @@ function buildCard(l){
           ${l.plan_ganador===p.k?'<div class="winner-tag">GANADOR</div>':""}
         </div>`).join("")}
       </div>
-      <div class="analisis-text">${(l.analisis_claude||"").substring(0,500)}${(l.analisis_claude||"").length>500?"...":""}</div>
+      ${["vida","retiro","garantia"].map(k=>{
+        const r=resumenes[k]||{};
+        const isW=l.plan_ganador===k;
+        return `<div style="margin-top:14px;padding:12px;border-radius:8px;background:${isW?"rgba(203,169,126,0.08)":"rgba(255,255,255,0.03)"};border:1px solid ${isW?"rgba(203,169,126,0.35)":"rgba(255,255,255,0.07)"}">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:${isW?"var(--champ)":"rgba(255,255,255,0.4)"};margin-bottom:8px">${{vida:"VIDA PRUDENTIAL (10 años)",retiro:"RETIRO VIDA PRUDENTIAL (15 años)",garantia:"GARANTÍA PRUDENTIAL (20 años)"}[k]} ${isW?"⭐":""}</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;font-size:11px">
+            ${r.prima_mensual?`<div><span style="color:rgba(255,255,255,.4)">Prima:</span> <strong style="color:#fff">${r.prima_mensual}</strong></div>`:""}
+            ${r.suma_asegurada?`<div><span style="color:rgba(255,255,255,.4)">Suma asegurada:</span> <strong style="color:#fff">${r.suma_asegurada}</strong></div>`:""}
+            ${r.suma_udis?`<div style="grid-column:1/-1"><span style="color:rgba(255,255,255,.4)">En UDIs:</span> ${r.suma_udis}</div>`:""}
+            ${r.edad_retiro?`<div><span style="color:rgba(255,255,255,.4)">Retiro a:</span> <strong style="color:#fff">${r.edad_retiro}</strong></div>`:""}
+            ${r.renta_mensual?`<div><span style="color:rgba(255,255,255,.4)">Renta mensual:</span> <strong style="color:var(--champ)">${r.renta_mensual}</strong></div>`:""}
+            ${r.valor_rescate?`<div><span style="color:rgba(255,255,255,.4)">Valor rescate:</span> ${r.valor_rescate}</div>`:""}
+            ${r.deduccion_fiscal?`<div><span style="color:rgba(255,255,255,.4)">Deducible fiscal:</span> ${r.deduccion_fiscal}</div>`:""}
+            ${r.beneficio_clave?`<div style="grid-column:1/-1;margin-top:4px;color:rgba(255,255,255,.6);font-style:italic">${r.beneficio_clave}</div>`:""}
+          </div>
+        </div>`;
+      }).join("")}
+      <div style="margin-top:14px;padding:12px;background:rgba(255,255,255,0.02);border-radius:8px;border-top:1px solid rgba(203,169,126,0.15)">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,0.4);margin-bottom:8px">ANÁLISIS PERSONALIZADO</div>
+        <div class="analisis-text">${(l.analisis_claude||"")}</div>
+      </div>
     </div>`;
   }
+
 
   const tieneTodas=l.corrida_vida_url&&l.corrida_retiro_url&&l.corrida_garantia_url;
   const puedeAnalizar=tieneTodas&&!["analisis_listo","email_enviado"].includes(l.estado);
@@ -365,35 +392,75 @@ async function analizarClaude(leadId){
       pdfToB64(lead.corrida_garantia_url)
     ]);
 
-    const prompt=`Eres un experto en planeación patrimonial y seguros de vida Prudential México. 
-Analiza estas 3 corridas de seguros para el cliente:
+    const prompt=`Eres un experto asesor en planeación patrimonial y seguros de vida Prudential México. Analiza las 3 corridas de seguros adjuntas para el siguiente cliente:
+
+PERFIL DEL CLIENTE:
 - Nombre: ${lead.nombre}
 - Edad: ${lead.edad} años
-- Perfil: ${lead.perfil}
+- Perfil dominante: ${lead.perfil}
 - Objetivo principal: ${lead.objetivo_principal}
 - Régimen fiscal: ${lead.regimen_fiscal}
-- Índice Patrimonial: ${lead.indice_patrimonial}/100
+- Índice Patrimonial ARPA: ${lead.indice_patrimonial}/100
 - Plan recomendado por diagnóstico: ${lead.plan_recomendado}
 
-Las 3 corridas son:
-1. Vida Prudential (10 años pago) — más enfocado en protección/seguro de vida alto
-2. Retiro Vida Prudential (15 años pago) — más enfocado en rendimiento/rentas mensuales al retiro
-3. Garantía Prudential (20 años pago) — metas específicas + eficiencia fiscal
+LAS 3 CORRIDAS ADJUNTAS SON:
+1. PDF 1 → Vida Prudential (periodo de pago: 10 años) — alta suma asegurada, protección de vida principal
+2. PDF 2 → Retiro Vida Prudential (periodo de pago: 15 años) — optimizado para rendimiento y rentas mensuales al retiro
+3. PDF 3 → Garantía Prudential (periodo de pago: 20 años) — metas específicas con máxima eficiencia fiscal
 
-Analiza cada PDF y proporciona:
-1. Una puntuación del 1 al 10 para cada plan según el perfil del cliente
-2. El plan ganador (el que mejor se adapta)
-3. Una explicación personalizada de 3-5 párrafos para el cliente explicando por qué ese plan es el ideal para su situación
-4. Puntos clave de cada plan (3 bullets por plan)
+INSTRUCCIONES DE ANÁLISIS:
+Para CADA plan, extrae y presenta los datos REALES del PDF:
+- Prima mensual o anual a pagar
+- Suma asegurada total (en pesos y en UDIs si aplica, con valor estimado en pesos hoy)
+- Año/edad en que puede retirar o iniciar beneficios
+- Monto de renta mensual al retiro (si aplica)
+- Valor de rescate proyectado al final del periodo de pago
+- Monto deducible de impuestos anualmente
+- Beneficio adicional más relevante del plan
 
-Responde en este formato JSON exacto:
+Evalúa cuál plan es el GANADOR considerando el perfil, edad, objetivo y régimen fiscal del cliente.
+
+Responde ÚNICAMENTE con este JSON (sin markdown ni texto extra):
 {
   "puntuaciones": {"vida": X, "retiro": X, "garantia": X},
   "ganador": "vida|retiro|garantia",
-  "analisis": "texto completo aquí...",
-  "puntos_vida": ["punto1","punto2","punto3"],
-  "puntos_retiro": ["punto1","punto2","punto3"],
-  "puntos_garantia": ["punto1","punto2","punto3"]
+  "resumen_vida": {
+    "prima_mensual": "$ X,XXX MXN",
+    "suma_asegurada": "$ X,XXX,XXX MXN",
+    "suma_udis": "XX,XXX UDIs (aprox. $X,XXX,XXX MXN hoy)",
+    "edad_retiro": "XX años (año XXXX)",
+    "renta_mensual": "$ X,XXX MXN/mes",
+    "valor_rescate": "$ X,XXX,XXX MXN",
+    "deduccion_fiscal": "$ XX,XXX MXN/año",
+    "periodo_pago": "10 años",
+    "beneficio_clave": "descripción breve"
+  },
+  "resumen_retiro": {
+    "prima_mensual": "$ X,XXX MXN",
+    "suma_asegurada": "$ X,XXX,XXX MXN",
+    "suma_udis": "XX,XXX UDIs (aprox. $X,XXX,XXX MXN hoy)",
+    "edad_retiro": "XX años (año XXXX)",
+    "renta_mensual": "$ X,XXX MXN/mes",
+    "valor_rescate": "$ X,XXX,XXX MXN",
+    "deduccion_fiscal": "$ XX,XXX MXN/año",
+    "periodo_pago": "15 años",
+    "beneficio_clave": "descripción breve"
+  },
+  "resumen_garantia": {
+    "prima_mensual": "$ X,XXX MXN",
+    "suma_asegurada": "$ X,XXX,XXX MXN",
+    "suma_udis": "XX,XXX UDIs (aprox. $X,XXX,XXX MXN hoy)",
+    "edad_retiro": "XX años (año XXXX)",
+    "renta_mensual": "$ X,XXX MXN/mes",
+    "valor_rescate": "$ X,XXX,XXX MXN",
+    "deduccion_fiscal": "$ XX,XXX MXN/año",
+    "periodo_pago": "20 años",
+    "beneficio_clave": "descripción breve"
+  },
+  "analisis": "Análisis personalizado de 3-4 párrafos para ${lead.nombre}: por qué el plan ganador es el ideal, qué logra con él a lo largo del tiempo, y cómo los otros planes se comparan. Tono profesional y cercano, en español.",
+  "puntos_vida": ["dato real del PDF 1", "dato real del PDF 1", "dato real del PDF 1"],
+  "puntos_retiro": ["dato real del PDF 2", "dato real del PDF 2", "dato real del PDF 2"],
+  "puntos_garantia": ["dato real del PDF 3", "dato real del PDF 3", "dato real del PDF 3"]
 }`;
 
     const apiRes=await fetch("/api/analyze",{
@@ -424,12 +491,13 @@ Responde en este formato JSON exacto:
 
     await sbFetch("/rest/v1/leads?id=eq."+leadId,{
       method:"PATCH",
-      body:JSON.stringify({
         analisis_claude:parsed.analisis,
         plan_ganador:parsed.ganador,
         puntuacion_planes:JSON.stringify(parsed.puntuaciones),
+        resumen_vida:JSON.stringify(parsed.resumen_vida||{}),
+        resumen_retiro:JSON.stringify(parsed.resumen_retiro||{}),
+        resumen_garantia:JSON.stringify(parsed.resumen_garantia||{}),
         estado:"analisis_listo"
-      })
     });
 
     showToast("✅ Análisis completado — Plan ganador: "+parsed.ganador.toUpperCase(),"success");

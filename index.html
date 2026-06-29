@@ -532,7 +532,7 @@ async function enviarSB(nombre,edad,correo,plan){
         'Content-Type':'application/json',
         'apikey':K,
         'Authorization':'Bearer '+K,
-        'Prefer':'return=representation'
+        'Prefer':'return=minimal'
       },
       body:JSON.stringify(payload)
     });

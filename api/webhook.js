@@ -3,7 +3,7 @@
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
-  const MAKE_WEBHOOK = "https://hook.us2.make.com/1694zmk9ehdx8v33qy5vgt";
+  const MAKE_WEBHOOK = "https://hook.us2.make.com/8ttjnzrlwbq6e0u2nsyfghqc0vhm6tn6";
 
   try {
     const response = await fetch(MAKE_WEBHOOK, {

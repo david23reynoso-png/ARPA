@@ -491,6 +491,7 @@ Responde ÚNICAMENTE con este JSON (sin markdown ni texto extra):
 
     await sbFetch("/rest/v1/leads?id=eq."+leadId,{
       method:"PATCH",
+      body:JSON.stringify({
         analisis_claude:parsed.analisis,
         plan_ganador:parsed.ganador,
         puntuacion_planes:JSON.stringify(parsed.puntuaciones),
@@ -498,6 +499,7 @@ Responde ÚNICAMENTE con este JSON (sin markdown ni texto extra):
         resumen_retiro:JSON.stringify(parsed.resumen_retiro||{}),
         resumen_garantia:JSON.stringify(parsed.resumen_garantia||{}),
         estado:"analisis_listo"
+      })
     });
 
     showToast("✅ Análisis completado — Plan ganador: "+parsed.ganador.toUpperCase(),"success");

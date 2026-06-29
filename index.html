@@ -513,13 +513,34 @@ function renderPlan(p,isTop){
 async function enviarSB(nombre,edad,correo,plan){
   const U='https://aveebyqvtcazxjdqsstp.supabase.co';
   const K='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2ZWVieXF2dGNhenhqZHFzc3RwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0NDcyOTMsImV4cCI6MjA5NzAyMzI5M30.zU4XVKVmZvQYZbjAAdtpZcTkeHIJILkosts79i5YILg';
+  const payload = {
+    nombre: nombre,
+    edad: String(edad),
+    correo: correo,
+    profile: plan,
+    score: 0,
+    prioridad: ans.prioridad||'',
+    ingreso: ans.capacidad_ahorro||'',
+    retiro: String(ans.edad_retiro_v||65),
+    meta: String(ans.retiro_deseado_v||30000)
+  };
+  console.log('ARPA Supabase payload:', payload);
   try{
-    await fetch(U+'/rest/v1/leads',{
+    const res = await fetch(U+'/rest/v1/leads',{
       method:'POST',
-      headers:{'Content-Type':'application/json','apikey':K,'Authorization':'Bearer '+K,'Prefer':'return=minimal'},
-      body:JSON.stringify({nombre,edad,correo,profile:plan,score:0})
+      headers:{
+        'Content-Type':'application/json',
+        'apikey':K,
+        'Authorization':'Bearer '+K,
+        'Prefer':'return=representation'
+      },
+      body:JSON.stringify(payload)
     });
-  }catch(e){console.log('SB:',e);}
+    const data = await res.json();
+    console.log('ARPA Supabase response:', res.status, data);
+  }catch(e){
+    console.error('ARPA Supabase error:',e);
+  }
 }
 
 function generarPDF(){

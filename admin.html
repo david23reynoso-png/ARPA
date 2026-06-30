@@ -514,6 +514,23 @@ async function enviarEmail(leadId){
   const btn=document.getElementById("btnEmail_"+leadId);
   btn.disabled=true;btn.innerHTML='<span class="spinner" style="border-top-color:#22c55e"></span> Enviando...';
   try{
+    // Extraer texto limpio del analisis
+    let analisisTexto = lead.analisis_claude||"";
+    try {
+      const match = analisisTexto.match(/```json\s*([\s\S]*?)```/);
+      if(match){ const p=JSON.parse(match[1]); analisisTexto=p.analisis||analisisTexto; }
+      else { const p=JSON.parse(analisisTexto); analisisTexto=p.analisis||analisisTexto; }
+    } catch(e){ analisisTexto=analisisTexto.replace(/```json|```/g,"").trim(); }
+
+    // Extraer datos del plan ganador
+    let resumenPlan={};
+    try {
+      const g=(lead.plan_ganador||"").toLowerCase();
+      const k=g.includes("retiro")?"resumen_retiro":g.includes("garantia")?"resumen_garantia":"resumen_vida";
+      const col=lead[k]||"{}";
+      resumenPlan=typeof col==="string"?JSON.parse(col):col;
+    } catch(e){}
+
     await fetch(MAKE_WEBHOOK,{
       method:"POST",
       headers:{"Content-Type":"application/json"},
@@ -522,8 +539,12 @@ async function enviarEmail(leadId){
         nombre:lead.nombre,
         email:lead.correo||lead.email,
         plan_ganador:lead.plan_ganador,
-        analisis:lead.analisis_claude,
-        puntuaciones:lead.puntuacion_planes,
+        analisis:analisisTexto,
+        prima_mensual:resumenPlan.prima_mensual||"",
+        suma_asegurada:resumenPlan.suma_asegurada||"",
+        renta_mensual:resumenPlan.renta_mensual||"",
+        beneficio_clave:resumenPlan.beneficio_clave||"",
+        deduccion_fiscal:resumenPlan.deduccion_fiscal||"",
         calendly:"https://calendly.com/david23reynoso",
         accion:"enviar_resultado"
       })

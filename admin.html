@@ -520,7 +520,7 @@ async function enviarEmail(leadId){
       body:JSON.stringify({
         lead_id:lead.id,
         nombre:lead.nombre,
-        email:lead.email,
+        email:lead.correo||lead.email,
         plan_ganador:lead.plan_ganador,
         analisis:lead.analisis_claude,
         puntuaciones:lead.puntuacion_planes,
@@ -529,7 +529,7 @@ async function enviarEmail(leadId){
       })
     });
     await sbFetch("/rest/v1/leads?id=eq."+leadId,{method:"PATCH",body:JSON.stringify({estado:"email_enviado",email_enviado_at:new Date().toISOString()})});
-    showToast("📧 Email enviado a "+lead.email,"success");
+    showToast("📧 Email enviado a "+(lead.correo||lead.email),"success");
     await loadLeads();
   }catch(e){showToast("Error: "+e.message,"error");}
   finally{if(btn){btn.disabled=false;btn.innerHTML="📧 Enviar Email al Cliente";}}
